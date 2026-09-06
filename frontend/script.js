@@ -1,10 +1,28 @@
-/* GLOBAL STATE */
+/*  
+   SAHAAYA FRONTEND
+   REAL BACKEND INTEGRATION
+  */
+
+
+/*  
+   BACKEND CONFIG
+  */
+
+const API_BASE_URL = "http://172.18.227.245:8000";
+
+
+/*  
+   GLOBAL STATE
+  */
 
 let selectedCategory = "";
 let selectedEmergency = "";
 let customEmergencyDescription = "";
 
 let currentRadius = 150;
+
+let emergencyId = null;
+let currentHelper = null;
 
 let responder = {
     name: "",
@@ -17,7 +35,9 @@ let responder = {
 };
 
 
-/*  EMERGENCY OPTIONS */
+/*  
+   EMERGENCY OPTIONS
+  */
 
 const emergencyOptions = {
 
@@ -71,7 +91,9 @@ const emergencyOptions = {
 };
 
 
-/* CATEGORY ICONS */
+/*  
+   CATEGORY ICONS
+  */
 
 const categoryIcons = {
 
@@ -85,21 +107,31 @@ const categoryIcons = {
 };
 
 
-/* SCREEN CONTROL*/
+/*  
+   SCREEN CONTROL
+  */
 
 function showScreen(screenId) {
 
-    const screens = document.querySelectorAll(".screen");
+    const screens =
+        document.querySelectorAll(".screen");
+
 
     screens.forEach(screen => {
+
         screen.classList.remove("active");
+
     });
 
 
-    const target = document.getElementById(screenId);
+    const target =
+        document.getElementById(screenId);
+
 
     if (target) {
+
         target.classList.add("active");
+
     }
 
 
@@ -110,8 +142,9 @@ function showScreen(screenId) {
 }
 
 
-/* HOME
-    */
+/*  
+   HOME
+  */
 
 function goHome() {
 
@@ -119,13 +152,16 @@ function goHome() {
     selectedEmergency = "";
     customEmergencyDescription = "";
 
+    emergencyId = null;
+    currentHelper = null;
+
     showScreen("home");
 }
 
 
-/*    
+/*  
    HOW IT WORKS
-    */
+  */
 
 function openHowItWorks() {
 
@@ -134,27 +170,36 @@ function openHowItWorks() {
 }
 
 
-/*
+/*  
    CATEGORY SELECTION
-    */
+  */
 
 function selectCategory(category) {
 
     selectedCategory = category;
 
-    document.getElementById("categoryIcon").textContent =
+
+    document.getElementById("categoryIcon")
+        .textContent =
         categoryIcons[category] || "🚨";
 
-    document.getElementById("categoryTitle").textContent =
+
+    document.getElementById("categoryTitle")
+        .textContent =
         `${category} Emergency`;
 
+
     const optionsContainer =
-        document.getElementById("emergencyOptions");
+        document.getElementById(
+            "emergencyOptions"
+        );
+
 
     optionsContainer.innerHTML = "";
 
 
-    const options = emergencyOptions[category] || [];
+    const options =
+        emergencyOptions[category] || [];
 
 
     options.forEach(option => {
@@ -162,9 +207,14 @@ function selectCategory(category) {
         const button =
             document.createElement("button");
 
-        button.className = "option-btn";
 
-        button.textContent = option;
+        button.className =
+            "option-btn";
+
+
+        button.textContent =
+            option;
+
 
         button.onclick = function () {
 
@@ -182,9 +232,9 @@ function selectCategory(category) {
 }
 
 
-/*   
+/*  
    EMERGENCY OPTION
-    */
+  */
 
 function selectEmergencyOption(option) {
 
@@ -192,7 +242,11 @@ function selectEmergencyOption(option) {
 
         showScreen("other-description");
 
-        document.getElementById("customDescription").value = "";
+
+        document.getElementById(
+            "customDescription"
+        ).value = "";
+
 
         return;
     }
@@ -200,29 +254,39 @@ function selectEmergencyOption(option) {
 
     selectedEmergency = option;
 
+
     showConfirmation();
 }
 
 
-/*  CUSTOM EMERGENCY */
+/*  
+   CUSTOM EMERGENCY
+  */
 
 function continueCustomEmergency() {
 
     const description =
-        document.getElementById("customDescription")
-            .value
-            .trim();
+        document.getElementById(
+            "customDescription"
+        )
+        .value
+        .trim();
 
 
     if (!description) {
 
-        alert("Please describe what is happening.");
+        alert(
+            "Please describe what is happening."
+        );
+
 
         return;
     }
 
 
-    customEmergencyDescription = description;
+    customEmergencyDescription =
+        description;
+
 
     selectedEmergency =
         "Other: " + description;
@@ -232,40 +296,361 @@ function continueCustomEmergency() {
 }
 
 
-/*   
+/*  
    CONFIRMATION
-    */
+  */
 
 function showConfirmation() {
 
-    document.getElementById("confirmEmergency")
-        .textContent = selectedCategory;
+    document.getElementById(
+        "confirmEmergency"
+    ).textContent =
+        selectedCategory;
 
 
-    document.getElementById("confirmDescription")
-        .textContent = selectedEmergency;
+    document.getElementById(
+        "confirmDescription"
+    ).textContent =
+        selectedEmergency;
 
 
     showScreen("confirmation");
 }
 
 
-/*   
-   REQUEST HELP
-    */
+/*  
+   BACKEND CATEGORY
+  */
 
-function requestHelp() {
+function getBackendCategory() {
+
+    return selectedCategory.toLowerCase();
+
+}
+
+
+/*  
+   REQUIRED SKILL
+  */
+
+function getRequiredSkill() {
+
+    const text =
+        selectedEmergency.toLowerCase();
+
+
+    if (
+        selectedCategory === "Medical" ||
+        text.includes("unconscious") ||
+        text.includes("injured") ||
+        text.includes("pain") ||
+        text.includes("breathing")
+    ) {
+
+        return "first_aid";
+
+    }
+
+
+    if (selectedCategory === "Fire") {
+
+        return "fire_response";
+
+    }
+
+
+    if (selectedCategory === "Accident") {
+
+        return "accident_response";
+
+    }
+
+
+    if (selectedCategory === "Danger") {
+
+        return "safety_assistance";
+
+    }
+
+
+    if (selectedCategory === "Electrical") {
+
+        return "electrical_assistance";
+
+    }
+
+
+    return "general_assistance";
+}
+
+
+/*  
+   SEVERITY
+  */
+
+function getSeverity() {
+
+    const text =
+        selectedEmergency.toLowerCase();
+
+
+    if (
+        text.includes("unconscious") ||
+        text.includes("breathing") ||
+        text.includes("trapped") ||
+        text.includes("electric shock") ||
+        text.includes("fire")
+    ) {
+
+        return "critical";
+
+    }
+
+
+    return "high";
+}
+
+
+/*  
+   GET USER LOCATION
+  */
+
+function getUserLocation() {
+
+    return new Promise((resolve) => {
+
+        if (!navigator.geolocation) {
+
+            /*
+               Demo fallback coordinates
+            */
+
+            resolve({
+
+                latitude: 12.9716,
+                longitude: 77.5946
+
+            });
+
+
+            return;
+        }
+
+
+        navigator.geolocation.getCurrentPosition(
+
+            position => {
+
+                resolve({
+
+                    latitude:
+                        position.coords.latitude,
+
+                    longitude:
+                        position.coords.longitude
+
+                });
+
+            },
+
+
+            error => {
+
+                console.log(
+                    "Location unavailable:",
+                    error
+                );
+
+
+                /*
+                   Demo fallback
+                */
+
+                resolve({
+
+                    latitude: 12.9716,
+
+                    longitude: 77.5946
+
+                });
+
+            },
+
+
+            {
+                enableHighAccuracy: true,
+                timeout: 5000,
+                maximumAge: 60000
+            }
+
+        );
+
+    });
+}
+
+
+/*  
+   POST /emergency
+  */
+
+async function createEmergency() {
+
+    const location =
+        await getUserLocation();
+
+
+    const emergencyData = {
+
+        category:
+            getBackendCategory(),
+
+        severity:
+            getSeverity(),
+
+        required_skill:
+            getRequiredSkill(),
+
+        description:
+            selectedEmergency,
+
+        latitude:
+            location.latitude,
+
+        longitude:
+            location.longitude
+
+    };
+
+
+    console.log(
+        "POST /emergency",
+        emergencyData
+    );
+
+
+    try {
+
+        const response =
+            await fetch(
+                `${API_BASE_URL}/emergency`,
+                {
+
+                    method: "POST",
+
+                    headers: {
+
+                        "Content-Type":
+                            "application/json"
+
+                    },
+
+                    body:
+                        JSON.stringify(
+                            emergencyData
+                        )
+
+                }
+            );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                `HTTP ${response.status}`
+            );
+
+        }
+
+
+        const data =
+            await response.json();
+
+
+        console.log(
+            "Emergency response:",
+            data
+        );
+
+
+        /*
+           Person 1's backend should return:
+
+           {
+               "message": "...",
+               "emergency_id": 1,
+               "emergency": {...}
+           }
+
+           We support that structure.
+        */
+
+
+        if (data.emergency_id) {
+
+            emergencyId =
+                data.emergency_id;
+
+        }
+
+
+        /*
+           Some backends may put the ID inside
+           the emergency object.
+        */
+
+        else if (
+            data.emergency &&
+            data.emergency.id
+        ) {
+
+            emergencyId =
+                data.emergency.id;
+
+        }
+
+
+        return data;
+
+
+    } catch (error) {
+
+        console.error(
+            "POST /emergency failed:",
+            error
+        );
+
+
+        alert(
+            "Could not connect to the SAHAAYA backend.\n\nMake sure Person 1's FastAPI server is running and accessible."
+        );
+
+
+        return null;
+
+    }
+
+}
+
+
+/*  
+   REQUEST HELP
+  */
+
+async function requestHelp() {
 
     currentRadius = 150;
 
 
-    document.getElementById("radiusValue")
-        .textContent = "150 m";
+    document.getElementById(
+        "radiusValue"
+    ).textContent =
+        "Detecting location...";
 
 
-    document.getElementById("findingMessage")
-        .textContent =
-        "Searching for nearby responders...";
+    document.getElementById(
+        "findingMessage"
+    ).textContent =
+        "Sending emergency to SAHAAYA...";
 
 
     resetFindingTracker();
@@ -275,254 +660,652 @@ function requestHelp() {
 
 
     /*
-       DEMO FLOW
-
-       Later this will become:
-
-       POST /emergency
-
-       Backend then performs:
-
-       AI classification
-       ↓
-       Database lookup
-       ↓
-       Skill matching
-       ↓
-       Distance calculation
-       ↓
-       Responder notification
+       STEP 1
+       Create emergency
     */
 
-
-    setTimeout(() => {
-
-        currentRadius = 300;
-
-        document.getElementById("radiusValue")
-            .textContent = "300 m";
-
-        document.getElementById("findingMessage")
-            .textContent =
-            "No response. Expanding search to 300 m...";
-
-    }, 1000);
+    const emergencyResponse =
+        await createEmergency();
 
 
-    setTimeout(() => {
+    if (!emergencyResponse) {
 
-        currentRadius = 500;
+        return;
 
-        document.getElementById("radiusValue")
-            .textContent = "500 m";
-
-        document.getElementById("findingMessage")
-            .textContent =
-            "Searching a wider area...";
+    }
 
 
-    }, 2000);
+    /*
+       Emergency successfully created.
+    */
+
+    document.getElementById(
+        "findingMessage"
+    ).textContent =
+        "Emergency reported. Finding nearby help...";
 
 
-    setTimeout(() => {
-
-        activateFindingResponder();
-
-
-    }, 3000);
+    document.getElementById(
+        "radiusValue"
+    ).textContent =
+        "Searching";
 
 
-    setTimeout(() => {
+    /*
+       STEP 2
+       Get matching helpers
+    */
 
-        showHelperFound();
+    if (!emergencyId) {
 
-    }, 4000);
+        console.error(
+            "No emergency ID received."
+        );
+
+
+        alert(
+            "Emergency was created, but the backend did not return an emergency ID. Ask Person 1 to include emergency_id in the response."
+        );
+
+
+        return;
+
+    }
+
+
+    await findHelpers(emergencyId);
+}
+
+
+/*  
+   GET /emergency/{id}/helpers
+  */
+
+async function findHelpers(id) {
+
+    console.log(
+        `GET /emergency/${id}/helpers`
+    );
+
+
+    try {
+
+        const response =
+            await fetch(
+                `${API_BASE_URL}/emergency/${id}/helpers`
+            );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                `HTTP ${response.status}`
+            );
+
+        }
+
+
+        const data =
+            await response.json();
+
+
+        console.log(
+            "Helpers response:",
+            data
+        );
+
+
+        /*
+           Expected:
+
+           {
+               emergency_id: 1,
+               status: "searching",
+               helpers: [...]
+           }
+        */
+
+
+        if (
+            data.helpers &&
+            data.helpers.length > 0
+        ) {
+
+            /*
+               Use the first helper returned.
+               Backend already sorts/matches helpers.
+            */
+
+            currentHelper =
+                data.helpers[0];
+
+
+            activateFindingResponder();
+
+
+            document.getElementById(
+                "findingMessage"
+            ).textContent =
+                "Suitable responder found!";
+
+
+            document.getElementById(
+                "radiusValue"
+            ).textContent =
+                `${currentHelper.distance} m`;
+
+
+            setTimeout(
+                showRealHelperFound,
+                700
+            );
+
+
+        } else {
+
+            /*
+               No helper currently returned.
+
+               We display the search status rather
+               than inventing a fake responder.
+            */
+
+            currentRadius += 150;
+
+
+            document.getElementById(
+                "radiusValue"
+            ).textContent =
+                `${currentRadius} m`;
+
+
+            document.getElementById(
+                "findingMessage"
+            ).textContent =
+                "No suitable responder found yet. Searching a wider area...";
+
+
+            /*
+               Try once more after a short delay.
+
+               Later Person 1 can handle radius
+               escalation completely on the backend.
+            */
+
+            setTimeout(
+                () => retryHelperSearch(id),
+                2000
+            );
+
+        }
+
+
+    } catch (error) {
+
+        console.error(
+            "GET helpers failed:",
+            error
+        );
+
+
+        alert(
+            "Could not retrieve nearby responders from the backend."
+        );
+
+    }
 
 }
 
 
-/*   
+/*  
+   RETRY HELPER SEARCH
+  */
+
+async function retryHelperSearch(id) {
+
+    console.log(
+        "Retrying helper search..."
+    );
+
+
+    try {
+
+        const response =
+            await fetch(
+                `${API_BASE_URL}/emergency/${id}/helpers`
+            );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                `HTTP ${response.status}`
+            );
+
+        }
+
+
+        const data =
+            await response.json();
+
+
+        console.log(
+            "Retry helpers response:",
+            data
+        );
+
+
+        if (
+            data.helpers &&
+            data.helpers.length > 0
+        ) {
+
+            currentHelper =
+                data.helpers[0];
+
+
+            activateFindingResponder();
+
+
+            document.getElementById(
+                "findingMessage"
+            ).textContent =
+                "Suitable responder found!";
+
+
+            document.getElementById(
+                "radiusValue"
+            ).textContent =
+                `${currentHelper.distance} m`;
+
+
+            setTimeout(
+                showRealHelperFound,
+                700
+            );
+
+
+        } else {
+
+            document.getElementById(
+                "findingMessage"
+            ).textContent =
+                "No responder is currently available.";
+
+
+            document.getElementById(
+                "radiusValue"
+            ).textContent =
+                "Search complete";
+
+
+            /*
+               Don't keep retrying forever.
+            */
+
+            setTimeout(() => {
+
+                alert(
+                    "No suitable responder is currently available. The backend can later trigger radius escalation or official emergency escalation."
+                );
+
+                goHome();
+
+            }, 1500);
+
+        }
+
+
+    } catch (error) {
+
+        console.error(
+            "Retry failed:",
+            error
+        );
+
+        
+
+
+        alert(
+            "Could not retrieve responders."
+        );
+
+    }
+
+}
+
+
+/*  
    FINDING TRACKER
-    */
+  */
 
 function resetFindingTracker() {
 
     const responderTracker =
-        document.getElementById("trackerResponder");
+        document.getElementById(
+            "trackerResponder"
+        );
+
 
     const connectTracker =
-        document.getElementById("trackerConnect");
+        document.getElementById(
+            "trackerConnect"
+        );
 
 
-    responderTracker.classList.remove("active");
-    connectTracker.classList.remove("active");
+    responderTracker.classList.remove(
+        "active"
+    );
 
 
-    responderTracker.querySelector(".status-dot")
-        .textContent = "3";
+    connectTracker.classList.remove(
+        "active"
+    );
 
-    connectTracker.querySelector(".status-dot")
-        .textContent = "4";
+
+    responderTracker.querySelector(
+        ".status-dot"
+    ).textContent =
+        "3";
+
+
+    connectTracker.querySelector(
+        ".status-dot"
+    ).textContent =
+        "4";
 }
 
 
 function activateFindingResponder() {
 
     const responderTracker =
-        document.getElementById("trackerResponder");
+        document.getElementById(
+            "trackerResponder"
+        );
 
 
-    responderTracker.classList.add("active");
+    responderTracker.classList.add(
+        "active"
+    );
 
 
-    responderTracker.querySelector(".status-dot")
-        .textContent = "✓";
+    responderTracker.querySelector(
+        ".status-dot"
+    ).textContent =
+        "✓";
 }
 
 
-/*   
-   HELPER FOUND
-    */
+/*  
+   SHOW REAL HELPER
+  */
 
-function showHelperFound() {
+function showRealHelperFound() {
 
-    const helperData =
-        getDemoHelper(selectedCategory);
+    if (!currentHelper) {
 
+        return;
 
-    document.getElementById("helperName")
-        .textContent = helperData.name;
-
-
-    document.getElementById("helperSkill")
-        .textContent =
-        "🩺 Skill: " + helperData.skill;
+    }
 
 
-    document.getElementById("helperDistance")
-        .textContent =
-        helperData.distance + " m";
+    const helperName =
+        currentHelper.name ||
+        "Nearby Responder";
 
 
-    showScreen("helper-found");
+    const helperSkill =
+        currentHelper.skill ||
+        "Emergency Assistance";
+
+
+    const helperDistance =
+        currentHelper.distance ??
+        "Nearby";
+
+
+    document.getElementById(
+        "helperName"
+    ).textContent =
+        helperName;
+
+
+    document.getElementById(
+        "helperSkill"
+    ).textContent =
+        "🩺 Skill: " + helperSkill;
+
+
+    document.getElementById(
+        "helperDistance"
+    ).textContent =
+        helperDistance;
+
+
+    showScreen(
+        "helper-found"
+    );
 }
 
 
-/*   
-   DEMO HELPER
+/*  
+   ACCEPT MATCH
+   POST /match/{id}/accept
+  */
+
+async function simulateResponderAccept() {
+
+    /*
+       IMPORTANT:
+
+       This function name is kept because your
+       existing HTML already calls it.
+
+       It now performs the REAL backend accept call.
     */
 
-function getDemoHelper(category) {
 
-    const helpers = {
+    if (!emergencyId) {
 
-        Medical: {
-            name: "First-Aid Responder",
-            skill: "First Aid",
-            distance: 280
-        },
+        alert(
+            "Emergency ID is missing."
+        );
 
-        Fire: {
-            name: "Fire Response Volunteer",
-            skill: "Fire Response",
-            distance: 320
-        },
 
-        Accident: {
-            name: "Emergency Responder",
-            skill: "Accident Response",
-            distance: 250
-        },
+        return;
 
-        Danger: {
-            name: "Safety Responder",
-            skill: "Safety Assistance",
-            distance: 300
-        },
+    }
 
-        Electrical: {
-            name: "Electrical Responder",
-            skill: "Electrical Assistance",
-            distance: 220
-        },
 
-        Other: {
-            name: "Community Responder",
-            skill: "General Assistance",
-            distance: 280
+    if (!currentHelper) {
+
+        alert(
+            "No responder has been selected."
+        );
+
+
+        return;
+
+    }
+
+
+    const helperId =
+        currentHelper.id;
+
+
+    if (!helperId) {
+
+        alert(
+            "Responder ID is missing from the backend response."
+        );
+
+
+        return;
+
+    }
+
+
+    console.log(
+        `POST /match/${emergencyId}/accept`
+    );
+
+
+    try {
+
+        const response =
+            await fetch(
+                `${API_BASE_URL}/match/${emergencyId}/accept`,
+                {
+
+                    method: "POST",
+
+                    headers: {
+
+                        "Content-Type":
+                            "application/json"
+
+                    }
+
+                }
+            );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                `HTTP ${response.status}`
+            );
+
         }
 
-    };
+
+        const data =
+            await response.json();
 
 
-    return helpers[category] || helpers.Other;
+        console.log(
+            "Accept response:",
+            data
+        );
+
+
+        /*
+           Expected:
+
+           {
+               emergency_id: 1,
+               helper_id: 1,
+               status: "accepted",
+               message: "..."
+           }
+        */
+
+
+        if (
+            data.status &&
+            data.status.toLowerCase() !==
+                "accepted"
+        ) {
+
+            alert(
+                data.message ||
+                "The responder did not accept the emergency."
+            );
+
+
+            return;
+
+        }
+
+
+        /*
+           Update responder status in the
+           emergency timeline.
+        */
+
+        const connectTracker =
+            document.getElementById(
+                "trackerConnect"
+            );
+
+
+        connectTracker.classList.add(
+            "active"
+        );
+
+
+        connectTracker.querySelector(
+            ".status-dot"
+        ).textContent =
+            "✓";
+
+
+        document.getElementById(
+            "acceptedResponderName"
+        ).textContent =
+            currentHelper.name ||
+            "Responder";
+
+
+        showScreen(
+            "emergency-status"
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "POST accept failed:",
+            error
+        );
+
+
+        alert(
+            "Could not accept the emergency through the backend."
+        );
+
+    }
+
 }
 
 
-/*   
-   DEMO RESPONDER ACCEPT
-    */
-
-function simulateResponderAccept() {
-
-    const helper =
-        getDemoHelper(selectedCategory);
-
-
-    document.getElementById("acceptedResponderName")
-        .textContent = helper.name;
-
-
-    const connectTracker =
-        document.getElementById("trackerConnect");
-
-
-    connectTracker.classList.add("active");
-
-
-    connectTracker.querySelector(".status-dot")
-        .textContent = "✓";
-
-
-    showScreen("emergency-status");
-}
-
-
-/*   
+/*  
    SPEAK
-    */
+  */
 
 function speakEmergency() {
 
     alert(
-        "Voice input to be connected to AI/voice services later."
+        "Voice input can be connected to AI/voice services later."
     );
 
 }
 
 
-/*   
+/*  
    RESPONDER ENTRY
-    */
+  */
 
 function openResponderEntry() {
 
-    showScreen("responder-entry");
+    showScreen(
+        "responder-entry"
+    );
 
 }
 
 
-/*   
+/*  
    RESPONDER LOGIN
-    */
+  */
 
 function openResponderLogin() {
 
     /*
        DEMO LOGIN
 
-       Later this becomes actual authentication
-       through the backend.
+       Actual responder authentication can be
+       connected to the backend later.
     */
 
 
@@ -530,14 +1313,26 @@ function openResponderLogin() {
 
         responder = {
 
-            name: "Demo Responder",
-            phone: "0000000000",
-            profession: "First-Aid Volunteer",
-            skills: "First Aid",
-            area: "Demo Area",
+            name:
+                "Demo Responder",
 
-            verified: true,
-            available: true
+            phone:
+                "0000000000",
+
+            profession:
+                "First-Aid Volunteer",
+
+            skills:
+                "First Aid",
+
+            area:
+                "Demo Area",
+
+            verified:
+                true,
+
+            available:
+                true
 
         };
 
@@ -548,50 +1343,62 @@ function openResponderLogin() {
 }
 
 
-/*   
-   REGISTRATION
-    */
+/*  
+   RESPONDER REGISTRATION
+  */
 
 function openResponderRegistration() {
 
-    showScreen("responder-registration");
+    showScreen(
+        "responder-registration"
+    );
 
 }
 
 
-/*   
+/*  
    SUBMIT REGISTRATION
-    */
+  */
 
 function submitRegistration() {
 
     const name =
-        document.getElementById("responderName")
-            .value
-            .trim();
+        document.getElementById(
+            "responderName"
+        )
+        .value
+        .trim();
 
 
     const phone =
-        document.getElementById("responderPhone")
-            .value
-            .trim();
+        document.getElementById(
+            "responderPhone"
+        )
+        .value
+        .trim();
 
 
     const profession =
-        document.getElementById("responderProfession")
-            .value;
+        document.getElementById(
+            "responderProfession"
+        )
+        .value;
 
 
     const skills =
-        document.getElementById("responderSkills")
-            .value
-            .trim();
+        document.getElementById(
+            "responderSkills"
+        )
+        .value
+        .trim();
 
 
     const area =
-        document.getElementById("responderArea")
-            .value
-            .trim();
+        document.getElementById(
+            "responderArea"
+        )
+        .value
+        .trim();
 
 
     if (
@@ -602,7 +1409,10 @@ function submitRegistration() {
         !area
     ) {
 
-        alert("Please fill in all fields.");
+        alert(
+            "Please fill in all fields."
+        );
+
 
         return;
     }
@@ -616,25 +1426,33 @@ function submitRegistration() {
         skills,
         area,
 
-        verified: false,
-        available: false
+        verified:
+            false,
+
+        available:
+            false
 
     };
 
 
-    showScreen("verification-pending");
+    showScreen(
+        "verification-pending"
+    );
 }
 
 
-/*   
+/*  
    DEMO VERIFICATION
-    */
+  */
 
 function simulateVerification() {
 
-    responder.verified = true;
+    responder.verified =
+        true;
 
-    responder.available = true;
+
+    responder.available =
+        true;
 
 
     alert(
@@ -646,9 +1464,9 @@ function simulateVerification() {
 }
 
 
-/*   
+/*  
    RESPONDER DASHBOARD
-    */
+  */
 
 function openResponderDashboard() {
 
@@ -658,55 +1476,73 @@ function openResponderDashboard() {
             "Your responder profile has not been verified yet."
         );
 
-        showScreen("verification-pending");
+
+        showScreen(
+            "verification-pending"
+        );
+
 
         return;
     }
 
 
-    document.getElementById("responderWelcome")
-        .textContent =
+    document.getElementById(
+        "responderWelcome"
+    ).textContent =
         `Welcome, ${responder.name}`;
 
 
-    document.getElementById("availabilityToggle")
-        .checked = responder.available;
+    document.getElementById(
+        "availabilityToggle"
+    ).checked =
+        responder.available;
 
 
     updateAvailabilityUI();
 
 
-    /*
-       Demo:
-       Show incoming emergency only when available.
-    */
-
     if (responder.available) {
 
-        document.getElementById("incomingEmergency")
-            .classList.remove("hidden");
+        document.getElementById(
+            "incomingEmergency"
+        ).classList.remove(
+            "hidden"
+        );
 
-        document.getElementById("noEmergency")
-            .classList.add("hidden");
+
+        document.getElementById(
+            "noEmergency"
+        ).classList.add(
+            "hidden"
+        );
 
     } else {
 
-        document.getElementById("incomingEmergency")
-            .classList.add("hidden");
+        document.getElementById(
+            "incomingEmergency"
+        ).classList.add(
+            "hidden"
+        );
 
-        document.getElementById("noEmergency")
-            .classList.remove("hidden");
+
+        document.getElementById(
+            "noEmergency"
+        ).classList.remove(
+            "hidden"
+        );
 
     }
 
 
-    showScreen("responder-dashboard");
+    showScreen(
+        "responder-dashboard"
+    );
 }
 
 
-/*   
+/*  
    AVAILABILITY
-    */
+  */
 
 function toggleAvailability() {
 
@@ -716,16 +1552,21 @@ function toggleAvailability() {
             "Only verified responders can change availability."
         );
 
-        document.getElementById("availabilityToggle")
-            .checked = false;
+
+        document.getElementById(
+            "availabilityToggle"
+        ).checked =
+            false;
+
 
         return;
     }
 
 
     responder.available =
-        document.getElementById("availabilityToggle")
-            .checked;
+        document.getElementById(
+            "availabilityToggle"
+        ).checked;
 
 
     updateAvailabilityUI();
@@ -733,42 +1574,61 @@ function toggleAvailability() {
 
     if (responder.available) {
 
-        document.getElementById("incomingEmergency")
-            .classList.remove("hidden");
+        document.getElementById(
+            "incomingEmergency"
+        ).classList.remove(
+            "hidden"
+        );
 
-        document.getElementById("noEmergency")
-            .classList.add("hidden");
+
+        document.getElementById(
+            "noEmergency"
+        ).classList.add(
+            "hidden"
+        );
 
     } else {
 
-        document.getElementById("incomingEmergency")
-            .classList.add("hidden");
+        document.getElementById(
+            "incomingEmergency"
+        ).classList.add(
+            "hidden"
+        );
 
-        document.getElementById("noEmergency")
-            .classList.remove("hidden");
+
+        document.getElementById(
+            "noEmergency"
+        ).classList.remove(
+            "hidden"
+        );
 
     }
 }
 
 
-/*   
+/*  
    AVAILABILITY UI
-    */
+  */
 
 function updateAvailabilityUI() {
 
     const badge =
-        document.getElementById("availabilityBadge");
+        document.getElementById(
+            "availabilityBadge"
+        );
 
 
     const message =
-        document.getElementById("availabilityMessage");
+        document.getElementById(
+            "availabilityMessage"
+        );
 
 
     if (responder.available) {
 
         badge.className =
             "availability-badge available";
+
 
         badge.textContent =
             "🟢 AVAILABLE";
@@ -782,6 +1642,7 @@ function updateAvailabilityUI() {
         badge.className =
             "availability-badge unavailable";
 
+
         badge.textContent =
             "⚪ UNAVAILABLE";
 
@@ -793,9 +1654,9 @@ function updateAvailabilityUI() {
 }
 
 
-/*   
+/*  
    ACCEPT EMERGENCY
-    */
+  */
 
 function acceptEmergency() {
 
@@ -805,39 +1666,47 @@ function acceptEmergency() {
             "You are currently unavailable."
         );
 
+
         return;
+
     }
 
 
-    showScreen("responder-accepted");
+    showScreen(
+        "responder-accepted"
+    );
 }
 
 
-/*   
+/*  
    DECLINE EMERGENCY
-    */
+  */
 
 function declineEmergency() {
 
-    showScreen("responder-declined");
+    showScreen(
+        "responder-declined"
+    );
 
 }
 
 
-/*   
+/*  
    NAVIGATION
-    */
+  */
 
 function navigateToEmergency() {
 
-    showScreen("navigation");
+    showScreen(
+        "navigation"
+    );
 
 }
 
 
-/*   
+/*  
    INITIAL LOAD
-    */
+  */
 
 document.addEventListener(
     "DOMContentLoaded",
