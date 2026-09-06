@@ -1,0 +1,1280 @@
+/* =========================
+   GLOBAL
+========================= */
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: #f4f7fb;
+    color: #182230;
+}
+
+
+button,
+input,
+textarea,
+select {
+    font-family: inherit;
+}
+
+
+button {
+    cursor: pointer;
+}
+
+
+.app {
+    width: 100%;
+    max-width: 650px;
+    min-height: 100vh;
+    margin: auto;
+    background: #ffffff;
+}
+
+
+/* =========================
+   HEADER
+========================= */
+
+.app-header {
+    padding: 22px 20px;
+    border-bottom: 1px solid #e7ebf0;
+    background: #ffffff;
+}
+
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+
+.brand-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 25px;
+
+    background: #eaf4ff;
+}
+
+
+.brand h1 {
+    font-size: 25px;
+    letter-spacing: 1px;
+}
+
+
+.brand p {
+    margin-top: 3px;
+    color: #687586;
+    font-size: 13px;
+}
+
+
+/* =========================
+   SCREENS
+========================= */
+
+.screen {
+    display: none;
+    padding: 25px 20px 35px;
+}
+
+
+.screen.active {
+    display: block;
+}
+
+
+/* =========================
+   HOME
+========================= */
+
+.welcome-card {
+    padding: 22px;
+    border-radius: 18px;
+    background: #f4f8fc;
+    margin-bottom: 25px;
+}
+
+
+.welcome-card h2 {
+    font-size: 25px;
+    margin-bottom: 8px;
+}
+
+
+.welcome-card p {
+    color: #657386;
+    line-height: 1.5;
+}
+
+
+.section-title {
+    font-weight: bold;
+    font-size: 17px;
+    margin-bottom: 14px;
+}
+
+
+.emergency-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+
+.emergency-btn {
+    min-height: 125px;
+    border: 1px solid #e2e7ee;
+    border-radius: 17px;
+
+    background: white;
+
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+
+    padding: 17px;
+
+    transition: 0.2s;
+}
+
+
+.emergency-btn:hover {
+    transform: translateY(-2px);
+    border-color: #b9c5d3;
+}
+
+
+.emergency-btn span {
+    font-size: 31px;
+    margin-bottom: 8px;
+}
+
+
+.emergency-btn strong {
+    font-size: 16px;
+}
+
+
+.emergency-btn small {
+    color: #758296;
+    margin-top: 4px;
+}
+
+
+.quick-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 25px;
+}
+
+
+/* =========================
+   BUTTONS
+========================= */
+
+.primary-btn,
+.secondary-btn,
+.responder-entry-btn {
+    width: 100%;
+    min-height: 52px;
+
+    border-radius: 13px;
+    border: none;
+
+    font-size: 16px;
+    font-weight: bold;
+
+    margin-top: 12px;
+}
+
+
+.primary-btn {
+    background: #1769aa;
+    color: white;
+}
+
+
+.primary-btn:hover {
+    background: #12588f;
+}
+
+
+.secondary-btn {
+    background: #eef3f8;
+    color: #243447;
+}
+
+
+.responder-entry-btn {
+    background: #182230;
+    color: white;
+}
+
+
+.back-btn {
+    background: none;
+    border: none;
+    color: #1769aa;
+
+    font-size: 15px;
+    font-weight: bold;
+
+    margin-bottom: 25px;
+}
+
+
+/* =========================
+   PAGE HEADING
+========================= */
+
+.page-heading {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+
+.big-icon {
+    font-size: 48px;
+    margin-bottom: 10px;
+}
+
+
+.page-heading h2 {
+    font-size: 27px;
+    margin-bottom: 8px;
+}
+
+
+.page-heading p {
+    color: #687586;
+    line-height: 1.5;
+}
+
+
+/* =========================
+   HOW IT WORKS
+========================= */
+
+.steps-container {
+    margin-top: 15px;
+}
+
+
+.how-step {
+    display: grid;
+    grid-template-columns: 35px 55px 1fr;
+    gap: 12px;
+    align-items: center;
+}
+
+
+.step-number {
+    width: 31px;
+    height: 31px;
+
+    border-radius: 50%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: #1769aa;
+    color: white;
+
+    font-weight: bold;
+}
+
+
+.step-icon {
+    font-size: 34px;
+    text-align: center;
+}
+
+
+.how-step h3 {
+    margin-bottom: 5px;
+}
+
+
+.how-step p {
+    color: #687586;
+    line-height: 1.4;
+    font-size: 14px;
+}
+
+
+.step-line {
+    width: 2px;
+    height: 28px;
+    background: #d8e0e8;
+    margin: 5px 0 5px 16px;
+}
+
+
+.info-box {
+    background: #f1f7fc;
+    border-radius: 14px;
+    padding: 16px;
+    margin-top: 22px;
+
+    color: #405064;
+    line-height: 1.5;
+}
+
+
+.info-box strong {
+    color: #182230;
+}
+
+
+/* =========================
+   OPTIONS
+========================= */
+
+.options-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+
+.option-btn {
+    width: 100%;
+    padding: 18px;
+
+    background: white;
+
+    border: 1px solid #dfe5ec;
+    border-radius: 14px;
+
+    text-align: left;
+    font-size: 16px;
+
+    transition: 0.2s;
+}
+
+
+.option-btn:hover {
+    background: #f5f8fb;
+    border-color: #aebdcc;
+}
+
+
+/* =========================
+   TEXTAREA
+========================= */
+
+textarea {
+    width: 100%;
+    min-height: 180px;
+
+    resize: vertical;
+
+    padding: 15px;
+
+    border: 1px solid #d6dde6;
+    border-radius: 13px;
+
+    font-size: 16px;
+    outline: none;
+}
+
+
+textarea:focus,
+input:focus,
+select:focus {
+    border-color: #1769aa;
+}
+
+
+/* =========================
+   CONFIRMATION
+========================= */
+
+.confirmation-card {
+    border: 1px solid #e0e6ed;
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+
+.detail-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+
+    padding: 16px;
+
+    border-bottom: 1px solid #edf0f4;
+}
+
+
+.detail-row:last-child {
+    border-bottom: none;
+}
+
+
+.detail-row span {
+    color: #687586;
+}
+
+
+.detail-row strong {
+    text-align: right;
+}
+
+
+/* =========================
+   FINDING HELP
+========================= */
+
+#finding-help {
+    text-align: center;
+}
+
+
+.finding-icon {
+    font-size: 58px;
+    margin: 20px 0;
+}
+
+
+#finding-help h2 {
+    font-size: 28px;
+}
+
+
+#finding-help p {
+    color: #687586;
+    margin-top: 8px;
+}
+
+
+.search-radius {
+    display: flex;
+    justify-content: space-between;
+
+    background: #f2f6fa;
+
+    padding: 17px;
+
+    border-radius: 14px;
+
+    margin-top: 25px;
+}
+
+
+.status-tracker {
+    margin-top: 25px;
+    text-align: left;
+}
+
+
+.status-item {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+
+    padding: 11px 0;
+
+    color: #8a96a5;
+}
+
+
+.status-item.active {
+    color: #243447;
+}
+
+
+.status-dot {
+    width: 31px;
+    height: 31px;
+
+    border-radius: 50%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: #e7edf3;
+
+    font-size: 13px;
+    font-weight: bold;
+}
+
+
+.status-item.active .status-dot {
+    background: #dceefa;
+    color: #1769aa;
+}
+
+
+/* =========================
+   HELPER
+========================= */
+
+#helper-found {
+    text-align: center;
+}
+
+
+.success-icon {
+    font-size: 62px;
+    margin: 20px 0;
+}
+
+
+#helper-found h2,
+#emergency-status h2,
+#responder-accepted h2,
+#responder-declined h2 {
+    font-size: 28px;
+}
+
+
+#helper-found > p,
+#emergency-status > p,
+#responder-accepted > p,
+#responder-declined > p {
+    color: #687586;
+    margin-top: 8px;
+}
+
+
+.helper-card {
+    display: flex;
+    align-items: center;
+    gap: 17px;
+
+    text-align: left;
+
+    margin-top: 25px;
+
+    padding: 20px;
+
+    border: 1px solid #dfe5ec;
+    border-radius: 17px;
+}
+
+
+.helper-avatar {
+    width: 65px;
+    height: 65px;
+
+    border-radius: 50%;
+
+    background: #edf5fb;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 32px;
+}
+
+
+.helper-info h3 {
+    margin-bottom: 6px;
+}
+
+
+.helper-info p {
+    color: #667486;
+    font-size: 14px;
+    margin-top: 4px;
+}
+
+
+.available-badge {
+    display: inline-block;
+
+    margin-top: 8px;
+
+    padding: 5px 9px;
+
+    border-radius: 20px;
+
+    background: #e8f7ee;
+    color: #18733c;
+
+    font-size: 12px;
+    font-weight: bold;
+}
+
+
+/* =========================
+   EMERGENCY STATUS
+========================= */
+
+#emergency-status {
+    text-align: center;
+}
+
+
+.status-header-icon {
+    font-size: 60px;
+    margin: 15px 0;
+}
+
+
+.live-status-card {
+    margin-top: 25px;
+
+    padding: 20px;
+
+    border: 1px solid #dfe5ec;
+    border-radius: 17px;
+
+    text-align: left;
+}
+
+
+.live-status-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    font-weight: bold;
+
+    padding-bottom: 15px;
+    border-bottom: 1px solid #edf0f4;
+}
+
+
+.live-pill {
+    font-size: 11px;
+
+    padding: 5px 8px;
+
+    border-radius: 20px;
+
+    background: #e8f7ee;
+    color: #18733c;
+}
+
+
+.status-timeline {
+    padding-top: 15px;
+}
+
+
+.timeline-item {
+    display: flex;
+    gap: 13px;
+
+    padding: 11px 0;
+}
+
+
+.timeline-icon {
+    width: 34px;
+    height: 34px;
+
+    flex-shrink: 0;
+
+    border-radius: 50%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: #e9eef3;
+}
+
+
+.timeline-item.completed .timeline-icon,
+.timeline-item.current .timeline-icon {
+    background: #dceefa;
+}
+
+
+.timeline-item strong {
+    display: block;
+    margin-bottom: 4px;
+}
+
+
+.timeline-item small {
+    color: #758296;
+}
+
+
+.responder-mini-card {
+    display: flex;
+    gap: 13px;
+    align-items: center;
+
+    text-align: left;
+
+    margin-top: 14px;
+
+    padding: 16px;
+
+    border-radius: 15px;
+
+    background: #f5f8fb;
+}
+
+
+.mini-avatar {
+    font-size: 32px;
+}
+
+
+.responder-mini-card p {
+    color: #687586;
+    font-size: 13px;
+    margin-top: 3px;
+}
+
+
+.important-message {
+    margin-top: 15px;
+
+    padding: 14px;
+
+    border-radius: 13px;
+
+    background: #fff7e6;
+
+    color: #75581e;
+
+    font-size: 14px;
+    line-height: 1.5;
+
+    text-align: left;
+}
+
+
+/* =========================
+   RESPONDER ENTRY
+========================= */
+
+#responder-entry .secondary-btn {
+    margin-top: 10px;
+}
+
+
+/* =========================
+   FORM
+========================= */
+
+.form-group {
+    margin-bottom: 17px;
+}
+
+
+.form-group label {
+    display: block;
+
+    font-size: 14px;
+    font-weight: bold;
+
+    margin-bottom: 7px;
+}
+
+
+.form-group input,
+.form-group select {
+    width: 100%;
+
+    padding: 14px;
+
+    border: 1px solid #d6dde6;
+
+    border-radius: 12px;
+
+    font-size: 15px;
+
+    outline: none;
+
+    background: white;
+}
+
+
+/* =========================
+   VERIFICATION
+========================= */
+
+#verification-pending {
+    text-align: center;
+}
+
+
+.pending-icon {
+    font-size: 65px;
+    margin: 30px 0 20px;
+}
+
+
+/* =========================
+   DASHBOARD
+========================= */
+
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+
+    margin-bottom: 20px;
+}
+
+
+.eyebrow {
+    color: #1769aa;
+    font-size: 11px;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+
+.dashboard-header h2 {
+    font-size: 27px;
+    margin: 5px 0;
+}
+
+
+.dashboard-header p:last-child {
+    color: #687586;
+}
+
+
+.logout-btn {
+    border: 1px solid #dce2e9;
+
+    background: white;
+
+    padding: 8px 12px;
+
+    border-radius: 9px;
+
+    color: #687586;
+}
+
+
+/* =========================
+   AVAILABILITY
+========================= */
+
+.availability-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 18px;
+
+    border-radius: 16px;
+
+    background: #f3f8f5;
+}
+
+
+.availability-label {
+    display: block;
+
+    color: #687586;
+
+    font-size: 13px;
+
+    margin-bottom: 6px;
+}
+
+
+.availability-badge {
+    font-size: 15px;
+    font-weight: bold;
+}
+
+
+.availability-badge.available {
+    color: #18733c;
+}
+
+
+.availability-badge.unavailable {
+    color: #8a4a4a;
+}
+
+
+.availability-message {
+    color: #687586;
+
+    font-size: 13px;
+
+    margin: 9px 2px 20px;
+}
+
+
+/* Toggle */
+
+.toggle {
+    position: relative;
+
+    width: 51px;
+    height: 29px;
+
+    display: inline-block;
+}
+
+
+.toggle input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+
+.slider {
+    position: absolute;
+
+    inset: 0;
+
+    background: #c9d1da;
+
+    border-radius: 30px;
+
+    transition: 0.2s;
+}
+
+
+.slider:before {
+    content: "";
+
+    position: absolute;
+
+    width: 21px;
+    height: 21px;
+
+    left: 4px;
+    top: 4px;
+
+    background: white;
+
+    border-radius: 50%;
+
+    transition: 0.2s;
+}
+
+
+.toggle input:checked + .slider {
+    background: #2e9b59;
+}
+
+
+.toggle input:checked + .slider:before {
+    transform: translateX(22px);
+}
+
+
+/* =========================
+   INCOMING EMERGENCY
+========================= */
+
+.incoming-emergency {
+    padding: 19px;
+
+    border: 1px solid #e0e5eb;
+
+    border-radius: 17px;
+
+    box-shadow: 0 5px 20px rgba(30, 50, 70, 0.06);
+}
+
+
+.emergency-alert-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    color: #a33434;
+
+    font-size: 12px;
+    font-weight: bold;
+
+    margin-bottom: 13px;
+}
+
+
+.new-pill {
+    background: #ffe7e7;
+    color: #a33434;
+
+    padding: 4px 7px;
+
+    border-radius: 10px;
+
+    font-size: 10px;
+}
+
+
+.emergency-type {
+    font-size: 21px;
+    font-weight: bold;
+
+    margin-bottom: 7px;
+}
+
+
+.severity {
+    display: inline-block;
+
+    padding: 6px 9px;
+
+    border-radius: 8px;
+
+    background: #fff0f0;
+    color: #a33434;
+
+    font-size: 12px;
+    font-weight: bold;
+}
+
+
+.emergency-description {
+    margin: 16px 0;
+
+    color: #4d5b6b;
+
+    line-height: 1.5;
+}
+
+
+.emergency-details {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+
+    padding: 15px;
+
+    border-radius: 12px;
+
+    background: #f5f8fb;
+}
+
+
+.emergency-details > div {
+    display: flex;
+    gap: 10px;
+}
+
+
+.emergency-details span {
+    display: flex;
+    flex-direction: column;
+}
+
+
+.emergency-details small {
+    color: #7b8795;
+}
+
+
+.emergency-details strong {
+    margin-top: 2px;
+}
+
+
+.dashboard-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+
+    margin-top: 17px;
+}
+
+
+.accept-btn,
+.decline-btn {
+    min-height: 50px;
+
+    border: none;
+
+    border-radius: 12px;
+
+    font-size: 15px;
+    font-weight: bold;
+}
+
+
+.accept-btn {
+    background: #21894b;
+    color: white;
+}
+
+
+.decline-btn {
+    background: #f1f3f5;
+    color: #596575;
+}
+
+
+/* =========================
+   NO EMERGENCY
+========================= */
+
+.no-emergency {
+    padding: 40px 20px;
+
+    text-align: center;
+
+    color: #687586;
+}
+
+
+.no-emergency > div {
+    font-size: 48px;
+    margin-bottom: 12px;
+}
+
+
+.no-emergency h3 {
+    color: #253447;
+    margin-bottom: 7px;
+}
+
+
+.hidden {
+    display: none !important;
+}
+
+
+/* =========================
+   RESPONDER ACCEPTED
+========================= */
+
+.responding-card {
+    margin-top: 25px;
+
+    padding: 20px;
+
+    border-radius: 16px;
+
+    background: #f4f8fb;
+
+    text-align: left;
+}
+
+
+.responding-header {
+    color: #21894b;
+
+    font-weight: bold;
+
+    margin-bottom: 14px;
+}
+
+
+.responding-detail {
+    padding: 10px 0;
+
+    border-bottom: 1px solid #e3e8ed;
+}
+
+
+.responding-detail:last-child {
+    border-bottom: none;
+}
+
+
+/* =========================
+   DECLINED
+========================= */
+
+#responder-declined {
+    text-align: center;
+}
+
+
+.declined-icon {
+    font-size: 60px;
+    margin: 30px 0 20px;
+}
+
+
+/* =========================
+   NAVIGATION
+========================= */
+
+.navigation-placeholder {
+    margin-top: 25px;
+
+    padding: 35px 20px;
+
+    border: 1px dashed #bfcbd7;
+
+    border-radius: 17px;
+
+    text-align: center;
+
+    background: #f7f9fb;
+}
+
+
+.navigation-placeholder > div {
+    font-size: 50px;
+    margin-bottom: 10px;
+}
+
+
+.navigation-placeholder p {
+    color: #687586;
+    margin-top: 6px;
+}
+
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width: 500px) {
+
+    .screen {
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+
+
+    .emergency-grid {
+        gap: 9px;
+    }
+
+
+    .emergency-btn {
+        min-height: 115px;
+        padding: 14px;
+    }
+
+
+    .emergency-btn span {
+        font-size: 27px;
+    }
+
+
+    .brand h1 {
+        font-size: 22px;
+    }
+
+
+    .brand p {
+        font-size: 11px;
+    }
+
+}
