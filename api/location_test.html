@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sahaaya Location Test</title>
+</head>
+
+<body>
+
+    <h1>Sahaaya Location Test</h1>
+
+    <button onclick="getLocation()">
+        GET MY LOCATION
+    </button>
+
+    <p id="status">Location not requested yet.</p>
+
+    <script>
+
+        function getLocation() {
+
+            const status = document.getElementById("status");
+
+            if (!navigator.geolocation) {
+                status.innerText =
+                    "Geolocation is not supported by this browser.";
+                return;
+            }
+
+            status.innerText = "Requesting your location...";
+
+            navigator.geolocation.getCurrentPosition(
+
+                function(position) {
+
+                    const latitude = position.coords.latitude;
+                    const longitude = position.coords.longitude;
+
+                    status.innerText =
+                        "Latitude: " + latitude +
+                        "\nLongitude: " + longitude;
+
+                    console.log("Latitude:", latitude);
+                    console.log("Longitude:", longitude);
+                },
+
+                function(error) {
+
+                    status.innerText =
+                        "Could not get location. Error code: "
+                        + error.code;
+
+                }
+            );
+        }
+
+    </script>
+
+</body>
+</html>

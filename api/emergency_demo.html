@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Sahaaya Emergency Demo</title>
+
+    <meta charset="UTF-8">
+
+    <link
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    />
+
+    <style>
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 25px;
+            background: #f5f5f5;
+        }
+
+        h1 {
+            margin-bottom: 5px;
+        }
+
+        .subtitle {
+            color: #555;
+        }
+
+        .box {
+            background: white;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 12px;
+            max-width: 700px;
+        }
+
+        textarea {
+            width: 95%;
+            height: 80px;
+            padding: 10px;
+            font-size: 16px;
+        }
+
+        button {
+            padding: 12px 18px;
+            margin: 8px 5px 8px 0;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 8px;
+            border: 1px solid #aaa;
+        }
+
+        .result {
+            font-size: 18px;
+            line-height: 1.7;
+        }
+
+        #map {
+            height: 400px;
+            width: 100%;
+        }
+
+        #status {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+    <h1>🆘 Sahaaya</h1>
+
+    <p class="subtitle">
+        Hyperlocal emergency help system
+    </p>
+
+
+    <!-- EMERGENCY INPUT -->
+
+    <div class="box">
+
+        <h2>1️⃣ Report Emergency</h2>
+
+        <textarea
+            id="emergencyText"
+            placeholder="Describe the emergency..."
+        ></textarea>
+
+        <br>
+
+        <button onclick="analyzeEmergency()">
+            ANALYZE EMERGENCY
+        </button>
+
+        <div id="aiResult" class="result">
+            AI result will appear here.
+        </div>
+
+    </div>
+
+
+
+    <!-- LOCATION -->
+
+    <div class="box">
+
+        <h2>2️⃣ Detect Location</h2>
+
+        <button onclick="getLocation()">
+            📍 GET MY LOCATION
+        </button>
+
+        <p id="locationStatus">
+            Location not detected yet.
+        </p>
+
+    </div>
+
+
+
+    <!-- SEARCH -->
+
+    <div class="box">
+
+        <h2>3️⃣ Find Nearby Help</h2>
+
+        <button onclick="startSearch()">
+            🔎 START SEARCH
+        </button>
+
+        <button onclick="expandSearch()">
+            ➕ EXPAND SEARCH
+        </button>
+
+        <p id="searchStatus">
+            Search not started.
+        </p>
+
+    </div>
+
+
+
+    <!-- CONNECTIVITY -->
+
+    <div class="box">
+
+        <h2>4️⃣ Connectivity</h2>
+
+        <p id="connectionStatus">
+            🟢 Internet connection available
+        </p>
+
+        <button onclick="simulateLowConnectivity()">
+            📡 SIMULATE LOW CONNECTIVITY
+        </button>
+
+    </div>
+
+
+
+    <!-- MAP -->
+
+    <div class="box">
+
+        <h2>5️⃣ Emergency Map</h2>
+
+        <div id="map"></div>
+
+    </div>
+
+
+
+    <!-- FINAL STATUS -->
+
+    <div class="box">
+
+        <h2>🚨 Sahaaya Status</h2>
+
+        <p id="status">
+            No emergency request yet.
+        </p>
+
+    </div>
+
+
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+
+    <script>
+
+        
+        // VARIABLES
+        
+
+        let userLatitude = null;
+        let userLongitude = null;
+
+        let emergencyMarker = null;
+        let searchCircle = null;
+
+        let currentRadius = 150;
+
+        let lowConnectivity = false;
+
+
+
+        
+        // MAP
+    
+
+        const map = L.map("map").setView([20, 78], 5);
+
+        L.tileLayer(
+            "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+            {
+                attribution: "&copy; OpenStreetMap contributors"
+            }
+        ).addTo(map);
+
+
+
+        
+        // AI DEMO
+        
+async function analyzeEmergency() {
+
+    const text =
+        document.getElementById("emergencyText").value;
+
+    if (text.trim() === "") {
+
+        alert("Please describe the emergency first.");
+
+        return;
+    }
+
+    document.getElementById("aiResult").innerHTML =
+        "🤖 Sahaaya AI is analyzing the emergency...";
+
+
+    try {
+
+        const response = await fetch(
+            "http://127.0.0.1:8000/classify",
+            {
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({
+                    description: text
+                })
+            }
+        );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                "Server returned an error."
+            );
+
+        }
+
+
+        const result = await response.json();
+
+
+        document.getElementById("aiResult").innerHTML =
+
+            "<b>Category:</b> " +
+            result.category +
+
+            "<br>" +
+
+            "<b>Severity:</b> " +
+            result.severity +
+
+            "<br>" +
+
+            "<b>Required Skill:</b> " +
+            result.required_skill;
+
+
+        document.getElementById("status").innerText =
+
+            "🚨 Emergency classified. Searching for " +
+            result.required_skill +
+            " nearby.";
+
+    }
+
+
+    catch (error) {
+
+        console.error(error);
+
+        document.getElementById("aiResult").innerHTML =
+
+            "❌ Could not connect to Sahaaya AI.";
+
+    }
+
+}
+
+        
+        // LOCATION
+    
+
+        function getLocation() {
+
+            const status =
+                document.getElementById("locationStatus");
+
+
+            if (!navigator.geolocation) {
+
+                status.innerText =
+                    "Geolocation is not supported.";
+
+                return;
+            }
+
+
+            status.innerText =
+                "📍 Requesting your location...";
+
+
+            navigator.geolocation.getCurrentPosition(
+
+                function(position) {
+
+                    userLatitude =
+                        position.coords.latitude;
+
+                    userLongitude =
+                        position.coords.longitude;
+
+
+                    status.innerText =
+
+                        "Latitude: " +
+                        userLatitude.toFixed(5) +
+
+                        " | Longitude: " +
+                        userLongitude.toFixed(5);
+
+
+                    map.setView(
+                        [userLatitude, userLongitude],
+                        16
+                    );
+
+
+                    if (emergencyMarker) {
+
+                        map.removeLayer(
+                            emergencyMarker
+                        );
+
+                    }
+
+
+                    emergencyMarker =
+                        L.marker(
+                            [
+                                userLatitude,
+                                userLongitude
+                            ]
+                        )
+                        .addTo(map)
+                        .bindPopup(
+                            "<b>🚨 Emergency Location</b>"
+                        )
+                        .openPopup();
+
+                },
+
+                function() {
+
+                    status.innerText =
+                        "❌ Could not get location.";
+
+                }
+
+            );
+
+        }
+
+
+
+    
+        // START SEARCH
+
+        function startSearch() {
+
+            if (userLatitude === null) {
+
+                alert(
+                    "Please detect your location first."
+                );
+
+                return;
+            }
+
+
+            currentRadius = 150;
+
+
+            drawSearchRadius();
+
+
+            document.getElementById(
+                "searchStatus"
+            ).innerText =
+
+                "🔎 Searching for helpers within 150 metres.";
+
+        }
+
+
+
+        
+        // EXPAND SEARCH
+        
+
+        function expandSearch() {
+
+            if (userLatitude === null) {
+
+                alert(
+                    "Please detect your location first."
+                );
+
+                return;
+            }
+
+
+            if (currentRadius === 150) {
+
+                currentRadius = 300;
+
+            }
+
+            else if (currentRadius === 300) {
+
+                currentRadius = 500;
+
+            }
+
+            else if (currentRadius === 500) {
+
+                currentRadius = 1000;
+
+            }
+
+            else {
+
+                document.getElementById(
+                    "searchStatus"
+                ).innerText =
+
+                    "⚠️ No nearby helper found. Escalating emergency.";
+
+                document.getElementById(
+                    "status"
+                ).innerText =
+
+                    "⚠️ Search radius exhausted. Escalating emergency.";
+
+                return;
+
+            }
+
+
+            drawSearchRadius();
+
+
+            document.getElementById(
+                "searchStatus"
+            ).innerText =
+
+                "🔎 Searching for helpers within " +
+                currentRadius +
+                " metres.";
+
+        }
+
+
+
+    
+        // DRAW RADIUS
+        
+
+        function drawSearchRadius() {
+
+            if (searchCircle) {
+
+                map.removeLayer(searchCircle);
+
+            }
+
+
+            searchCircle = L.circle(
+
+                [
+                    userLatitude,
+                    userLongitude
+                ],
+
+                {
+                    radius: currentRadius,
+                    color: "red",
+                    fillOpacity: 0.15
+                }
+
+            ).addTo(map);
+
+
+            map.setView(
+                [
+                    userLatitude,
+                    userLongitude
+                ],
+                16
+            );
+
+        }
+
+
+
+        
+        // LOW CONNECTIVITY
+        
+
+        function simulateLowConnectivity() {
+
+            lowConnectivity = true;
+
+
+            document.getElementById(
+                "connectionStatus"
+            ).innerText =
+
+                "⚠️ LOW CONNECTIVITY — Using trusted Help Circle";
+
+
+            document.getElementById(
+                "status"
+            ).innerText =
+
+                "📡 Internet is unreliable. Sahaaya is using the user's trusted Help Circle.";
+
+        }
+
+    </script>
+
+</body>
+
+</html>

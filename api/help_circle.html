@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>Sahaaya Help Circle</title>
+
+    <meta charset="UTF-8">
+
+    <style>
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 30px;
+        }
+
+        h1 {
+            margin-bottom: 5px;
+        }
+
+        .subtitle {
+            color: #555;
+        }
+
+        .person {
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px 0;
+            max-width: 500px;
+        }
+
+        .person button {
+            padding: 8px 15px;
+            margin-top: 8px;
+            cursor: pointer;
+        }
+
+        #status {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .offline {
+            padding: 15px;
+            background: #eee;
+            border-radius: 10px;
+            max-width: 500px;
+            margin: 20px 0;
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+    <h1>🆘 Sahaaya</h1>
+
+    <p class="subtitle">
+        My Trusted Help Circle
+    </p>
+
+
+    <div class="offline">
+
+        <b>📡 Connectivity Status</b>
+
+        <p id="connection">
+            Checking connection...
+        </p>
+
+        <button onclick="simulateOffline()">
+            SIMULATE LOW CONNECTIVITY
+        </button>
+
+    </div>
+
+
+    <h2>Nearby Trusted Helpers</h2>
+
+
+    <div class="person">
+
+        <h3>👩‍⚕️ Ananya</h3>
+
+        <p>Skill: Nurse</p>
+
+        <p>Distance: 120 metres</p>
+
+        <button onclick="contactHelper('Ananya', 'Nurse')">
+            REQUEST HELP
+        </button>
+
+    </div>
+
+
+    <div class="person">
+
+        <h3>🔧 Ravi</h3>
+
+        <p>Skill: Electrician</p>
+
+        <p>Distance: 180 metres</p>
+
+        <button onclick="contactHelper('Ravi', 'Electrician')">
+            REQUEST HELP
+        </button>
+
+    </div>
+
+
+    <div class="person">
+
+        <h3>🛡️ Building Security</h3>
+
+        <p>Skill: Security</p>
+
+        <p>Distance: 250 metres</p>
+
+        <button onclick="contactHelper('Building Security', 'Security')">
+            REQUEST HELP
+        </button>
+
+    </div>
+
+
+    <div class="person">
+
+        <h3>👨‍⚕️ Dr. Kumar</h3>
+
+        <p>Skill: Doctor</p>
+
+        <p>Distance: 400 metres</p>
+
+        <button onclick="contactHelper('Dr. Kumar', 'Doctor')">
+            REQUEST HELP
+        </button>
+
+    </div>
+
+
+    <p id="status">
+        No emergency request yet.
+    </p>
+
+
+    <script>
+
+        let lowConnectivity = false;
+
+
+        function updateConnection() {
+
+            if (lowConnectivity) {
+
+                document.getElementById("connection").innerText =
+                    "⚠️ Low connectivity — using Help Circle";
+
+            } else {
+
+                document.getElementById("connection").innerText =
+                    "🟢 Internet connection available";
+
+            }
+
+        }
+
+
+        function simulateOffline() {
+
+            lowConnectivity = true;
+
+            updateConnection();
+
+            document.getElementById("status").innerText =
+                "⚠️ Internet unavailable. Sahaaya is using your trusted Help Circle.";
+
+        }
+
+
+        function contactHelper(name, skill) {
+
+            if (lowConnectivity) {
+
+                document.getElementById("status").innerText =
+                    "📡 Low connectivity: Emergency request prepared for "
+                    + name
+                    + " ("
+                    + skill
+                    + ").";
+
+            } else {
+
+                document.getElementById("status").innerText =
+                    "🚨 Emergency request sent to "
+                    + name
+                    + " ("
+                    + skill
+                    + ").";
+
+            }
+
+        }
+
+
+        updateConnection();
+
+    </script>
+
+
+</body>
+
+</html>
