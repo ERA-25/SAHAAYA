@@ -1,21 +1,4 @@
-/* =====================================================
-   SAHAAYA FRONTEND
-   =====================================================
-
-   NOTE:
-
-   The emergency matching below is still DEMO logic.
-
-   Once Person 1 provides the FastAPI endpoints,
-   requestHelp(), responder matching and acceptEmergency()
-   will be connected to the real backend.
-
-===================================================== */
-
-
-/* =========================
-   GLOBAL STATE
-========================= */
+/* GLOBAL STATE */
 
 let selectedCategory = "";
 let selectedEmergency = "";
@@ -34,9 +17,7 @@ let responder = {
 };
 
 
-/* =========================
-   EMERGENCY OPTIONS
-========================= */
+/*  EMERGENCY OPTIONS */
 
 const emergencyOptions = {
 
@@ -90,9 +71,7 @@ const emergencyOptions = {
 };
 
 
-/* =========================
-   CATEGORY ICONS
-========================= */
+/* CATEGORY ICONS */
 
 const categoryIcons = {
 
@@ -106,9 +85,7 @@ const categoryIcons = {
 };
 
 
-/* =========================
-   SCREEN CONTROL
-========================= */
+/* SCREEN CONTROL*/
 
 function showScreen(screenId) {
 
@@ -133,9 +110,8 @@ function showScreen(screenId) {
 }
 
 
-/* =========================
-   HOME
-========================= */
+/* HOME
+    */
 
 function goHome() {
 
@@ -147,9 +123,9 @@ function goHome() {
 }
 
 
-/* =========================
+/*    
    HOW IT WORKS
-========================= */
+    */
 
 function openHowItWorks() {
 
@@ -158,9 +134,9 @@ function openHowItWorks() {
 }
 
 
-/* =========================
+/*
    CATEGORY SELECTION
-========================= */
+    */
 
 function selectCategory(category) {
 
@@ -206,9 +182,9 @@ function selectCategory(category) {
 }
 
 
-/* =========================
+/*   
    EMERGENCY OPTION
-========================= */
+    */
 
 function selectEmergencyOption(option) {
 
@@ -228,9 +204,7 @@ function selectEmergencyOption(option) {
 }
 
 
-/* =========================
-   CUSTOM EMERGENCY
-========================= */
+/*  CUSTOM EMERGENCY */
 
 function continueCustomEmergency() {
 
@@ -258,9 +232,9 @@ function continueCustomEmergency() {
 }
 
 
-/* =========================
+/*   
    CONFIRMATION
-========================= */
+    */
 
 function showConfirmation() {
 
@@ -276,9 +250,9 @@ function showConfirmation() {
 }
 
 
-/* =========================
+/*   
    REQUEST HELP
-========================= */
+    */
 
 function requestHelp() {
 
@@ -367,9 +341,9 @@ function requestHelp() {
 }
 
 
-/* =========================
+/*   
    FINDING TRACKER
-========================= */
+    */
 
 function resetFindingTracker() {
 
@@ -406,9 +380,9 @@ function activateFindingResponder() {
 }
 
 
-/* =========================
+/*   
    HELPER FOUND
-========================= */
+    */
 
 function showHelperFound() {
 
@@ -434,9 +408,9 @@ function showHelperFound() {
 }
 
 
-/* =========================
+/*   
    DEMO HELPER
-========================= */
+    */
 
 function getDemoHelper(category) {
 
@@ -485,9 +459,9 @@ function getDemoHelper(category) {
 }
 
 
-/* =========================
+/*   
    DEMO RESPONDER ACCEPT
-========================= */
+    */
 
 function simulateResponderAccept() {
 
@@ -514,9 +488,9 @@ function simulateResponderAccept() {
 }
 
 
-/* =========================
+/*   
    SPEAK
-========================= */
+    */
 
 function speakEmergency() {
 
@@ -527,9 +501,9 @@ function speakEmergency() {
 }
 
 
-/* =========================
+/*   
    RESPONDER ENTRY
-========================= */
+    */
 
 function openResponderEntry() {
 
@@ -538,9 +512,9 @@ function openResponderEntry() {
 }
 
 
-/* =========================
+/*   
    RESPONDER LOGIN
-========================= */
+    */
 
 function openResponderLogin() {
 
@@ -574,9 +548,9 @@ function openResponderLogin() {
 }
 
 
-/* =========================
+/*   
    REGISTRATION
-========================= */
+    */
 
 function openResponderRegistration() {
 
@@ -585,9 +559,9 @@ function openResponderRegistration() {
 }
 
 
-/* =========================
+/*   
    SUBMIT REGISTRATION
-========================= */
+    */
 
 function submitRegistration() {
 
@@ -652,9 +626,9 @@ function submitRegistration() {
 }
 
 
-/* =========================
+/*   
    DEMO VERIFICATION
-========================= */
+    */
 
 function simulateVerification() {
 
@@ -672,9 +646,9 @@ function simulateVerification() {
 }
 
 
-/* =========================
+/*   
    RESPONDER DASHBOARD
-========================= */
+    */
 
 function openResponderDashboard() {
 
@@ -730,9 +704,9 @@ function openResponderDashboard() {
 }
 
 
-/* =========================
+/*   
    AVAILABILITY
-========================= */
+    */
 
 function toggleAvailability() {
 
@@ -777,9 +751,9 @@ function toggleAvailability() {
 }
 
 
-/* =========================
+/*   
    AVAILABILITY UI
-========================= */
+    */
 
 function updateAvailabilityUI() {
 
@@ -819,9 +793,9 @@ function updateAvailabilityUI() {
 }
 
 
-/* =========================
+/*   
    ACCEPT EMERGENCY
-========================= */
+    */
 
 function acceptEmergency() {
 
@@ -839,9 +813,9 @@ function acceptEmergency() {
 }
 
 
-/* =========================
+/*   
    DECLINE EMERGENCY
-========================= */
+    */
 
 function declineEmergency() {
 
@@ -850,9 +824,9 @@ function declineEmergency() {
 }
 
 
-/* =========================
+/*   
    NAVIGATION
-========================= */
+    */
 
 function navigateToEmergency() {
 
@@ -861,9 +835,9 @@ function navigateToEmergency() {
 }
 
 
-/* =========================
+/*   
    INITIAL LOAD
-========================= */
+    */
 
 document.addEventListener(
     "DOMContentLoaded",
