@@ -1,6 +1,6 @@
-/* =========================
+/*   
    GLOBAL
-========================= */
+   */
 
 * {
     box-sizing: border-box;
@@ -38,9 +38,9 @@ button {
 }
 
 
-/* =========================
+/*   
    HEADER
-========================= */
+   */
 
 .app-header {
     padding: 22px 20px;
@@ -84,9 +84,9 @@ button {
 }
 
 
-/* =========================
+/*   
    SCREENS
-========================= */
+   */
 
 .screen {
     display: none;
@@ -99,9 +99,9 @@ button {
 }
 
 
-/* =========================
+/*   
    HOME
-========================= */
+   */
 
 .welcome-card {
     padding: 22px;
@@ -186,9 +186,9 @@ button {
 }
 
 
-/* =========================
+/*   
    BUTTONS
-========================= */
+   */
 
 .primary-btn,
 .secondary-btn,
@@ -241,9 +241,9 @@ button {
 }
 
 
-/* =========================
+/*   
    PAGE HEADING
-========================= */
+   */
 
 .page-heading {
     text-align: center;
@@ -269,9 +269,9 @@ button {
 }
 
 
-/* =========================
+/*   
    HOW IT WORKS
-========================= */
+   */
 
 .steps-container {
     margin-top: 15px;
@@ -345,9 +345,9 @@ button {
 }
 
 
-/* =========================
+/*   
    OPTIONS
-========================= */
+   */
 
 .options-list {
     display: flex;
@@ -378,9 +378,9 @@ button {
 }
 
 
-/* =========================
+/*   
    TEXTAREA
-========================= */
+   */
 
 textarea {
     width: 100%;
@@ -405,9 +405,9 @@ select:focus {
 }
 
 
-/* =========================
+/*   
    CONFIRMATION
-========================= */
+   */
 
 .confirmation-card {
     border: 1px solid #e0e6ed;
@@ -442,9 +442,9 @@ select:focus {
 }
 
 
-/* =========================
+/*   
    FINDING HELP
-========================= */
+   */
 
 #finding-help {
     text-align: center;
@@ -527,9 +527,9 @@ select:focus {
 }
 
 
-/* =========================
+/*   
    HELPER
-========================= */
+   */
 
 #helper-found {
     text-align: center;
@@ -620,9 +620,9 @@ select:focus {
 }
 
 
-/* =========================
+/*   
    EMERGENCY STATUS
-========================= */
+   */
 
 #emergency-status {
     text-align: center;
@@ -764,18 +764,18 @@ select:focus {
 }
 
 
-/* =========================
+/*   
    RESPONDER ENTRY
-========================= */
+   */
 
 #responder-entry .secondary-btn {
     margin-top: 10px;
 }
 
 
-/* =========================
+/*   
    FORM
-========================= */
+   */
 
 .form-group {
     margin-bottom: 17px;
@@ -810,9 +810,9 @@ select:focus {
 }
 
 
-/* =========================
+/*   
    VERIFICATION
-========================= */
+   */
 
 #verification-pending {
     text-align: center;
@@ -825,9 +825,9 @@ select:focus {
 }
 
 
-/* =========================
+/*   
    DASHBOARD
-========================= */
+   */
 
 .dashboard-header {
     display: flex;
@@ -870,9 +870,9 @@ select:focus {
 }
 
 
-/* =========================
+/*   
    AVAILABILITY
-========================= */
+   */
 
 .availability-card {
     display: flex;
@@ -984,9 +984,9 @@ select:focus {
 }
 
 
-/* =========================
+/*   
    INCOMING EMERGENCY
-========================= */
+   */
 
 .incoming-emergency {
     padding: 19px;
@@ -1126,9 +1126,9 @@ select:focus {
 }
 
 
-/* =========================
+/*   
    NO EMERGENCY
-========================= */
+   */
 
 .no-emergency {
     padding: 40px 20px;
@@ -1156,9 +1156,9 @@ select:focus {
 }
 
 
-/* =========================
+/*   
    RESPONDER ACCEPTED
-========================= */
+   */
 
 .responding-card {
     margin-top: 25px;
@@ -1194,9 +1194,9 @@ select:focus {
 }
 
 
-/* =========================
+/*   
    DECLINED
-========================= */
+   */
 
 #responder-declined {
     text-align: center;
@@ -1209,9 +1209,9 @@ select:focus {
 }
 
 
-/* =========================
+/*   
    NAVIGATION
-========================= */
+   */
 
 .navigation-placeholder {
     margin-top: 25px;
@@ -1240,9 +1240,9 @@ select:focus {
 }
 
 
-/* =========================
+/*   
    MOBILE
-========================= */
+   */
 
 @media (max-width: 500px) {
 
