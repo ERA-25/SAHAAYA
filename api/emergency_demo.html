@@ -87,21 +87,28 @@
         <h2>1️⃣ Report Emergency</h2>
 
         <textarea
-            id="emergencyText"
-            placeholder="Describe the emergency..."
-        ></textarea>
+    id="emergencyText"
+    placeholder="Describe the emergency..."
+></textarea>
 
-        <br>
+<br>
 
-        <button onclick="analyzeEmergency()">
-            ANALYZE EMERGENCY
-        </button>
+<button onclick="startVoiceInput()">
+    🎤 SPEAK EMERGENCY
+</button>
 
-        <div id="aiResult" class="result">
-            AI result will appear here.
-        </div>
+<button onclick="analyzeEmergency()">
+    🤖 ANALYZE EMERGENCY
+</button>
 
+<p id="voiceStatus">
+    Voice input not started.
+</p>
+<div id="aiResult" class="result">
+        AI result will appear here.
     </div>
+
+</div>
 
 
 
@@ -222,6 +229,80 @@
                 attribution: "&copy; OpenStreetMap contributors"
             }
         ).addTo(map);
+    // -----------------------------
+// VOICE INPUT
+// -----------------------------
+
+function startVoiceInput() {
+
+    const voiceStatus =
+        document.getElementById("voiceStatus");
+
+    const emergencyText =
+        document.getElementById("emergencyText");
+
+    const SpeechRecognition =
+        window.SpeechRecognition ||
+        window.webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+
+        voiceStatus.innerText =
+            "❌ Voice input is not supported in this browser.";
+
+        return;
+    }
+
+    const recognition =
+        new SpeechRecognition();
+
+    recognition.lang = "en-IN";
+
+    recognition.continuous = false;
+
+    recognition.interimResults = false;
+
+
+    voiceStatus.innerText =
+        "🎤 Listening... Please describe the emergency.";
+
+
+    recognition.start();
+
+
+    recognition.onresult = function(event) {
+
+        const spokenText =
+            event.results[0][0].transcript;
+
+        emergencyText.value =
+            spokenText;
+
+        voiceStatus.innerText =
+            "✅ Voice captured successfully. Analyzing...";
+
+        analyzeEmergency();
+
+    };
+
+
+    recognition.onerror = function(event) {
+
+        console.error(event);
+
+        voiceStatus.innerText =
+            "❌ Could not understand the voice input.";
+
+    };
+
+
+    recognition.onend = function() {
+
+        console.log("Voice recognition ended.");
+
+    };
+
+}
 
 
 

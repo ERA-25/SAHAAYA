@@ -1,13 +1,17 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
-
 
 
 from ai.classifier import classify_emergency
 
 
 app = FastAPI()
+
+@app.get("/emergency")
+def emergency_page():
+    return FileResponse("emergency_demo.html")
 
 
 app.add_middleware(
