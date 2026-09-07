@@ -1,4 +1,4 @@
-from database import get_db_connection
+from backend.database import get_db_connection
 
 
 def match_emergency_to_helpers(emergency_id, radius_km=1):

@@ -1,10 +1,18 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import mysql.connector
-from matching import match_emergency_to_helpers
+from backend.matching import match_emergency_to_helpers
 
 
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 # -----------------------------
@@ -95,7 +103,7 @@ def accept_emergency(emergency_id: int, helper_id: int):
     db = mysql.connector.connect(
         host="localhost",
         user="root",
-        password="yourpasswd",
+        password="Era@MYSQL123",
         database="sahaaya",
         port=3306
     )
