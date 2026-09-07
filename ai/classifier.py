@@ -29,7 +29,12 @@ Choose exactly ONE severity:
 low, medium, high, critical
 
 Choose exactly ONE required_skill:
-first_aid, medical, fire_response, security, electrician, general_help
+first_aid, medical, fire_responder, security, electrician, general_help
+Use these rules:
+- For medical emergencies, use first_aid.
+- For fire emergencies, use fire_responder.
+- For security emergencies, use security.
+- For electrical emergencies, use electrician.
 
 Emergency description:
 {message}
