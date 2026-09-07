@@ -13,10 +13,11 @@
 
 <div class="app">
 
-
     <header class="app-header">
         <div class="brand">
-            <div class="brand-icon">🤝</div>
+            <div class="brand-icon">
+                 <img src="sahaaya-logo.png" alt="Sahaaya Logo">
+            </div>
 
             <div>
                 <h1>SAHAAYA</h1>
@@ -26,7 +27,7 @@
     </header>
 
 
-    <!--  HOME -->
+    <!-- HOME -->
 
     <section id="home" class="screen active">
 
@@ -39,11 +40,9 @@
             </p>
         </div>
 
-
         <div class="section-title">
-            🚨 Report an Emergency
+             Report an Emergency
         </div>
-
 
         <div class="emergency-grid">
 
@@ -54,14 +53,12 @@
                 <small>Health emergency</small>
             </button>
 
-
             <button class="emergency-btn fire"
                     onclick="selectCategory('Fire')">
                 <span>🔥</span>
                 <strong>Fire</strong>
                 <small>Fire or smoke</small>
             </button>
-
 
             <button class="emergency-btn accident"
                     onclick="selectCategory('Accident')">
@@ -70,7 +67,6 @@
                 <small>Road accident</small>
             </button>
 
-
             <button class="emergency-btn danger"
                     onclick="selectCategory('Danger')">
                 <span>🛡️</span>
@@ -78,14 +74,12 @@
                 <small>Safety concern</small>
             </button>
 
-
             <button class="emergency-btn electrical"
                     onclick="selectCategory('Electrical')">
                 <span>⚡</span>
                 <strong>Electrical</strong>
                 <small>Electrical hazard</small>
             </button>
-
 
             <button class="emergency-btn other"
                     onclick="selectCategory('Other')">
@@ -95,7 +89,6 @@
             </button>
 
         </div>
-
 
         <div class="quick-actions">
 
@@ -138,12 +131,10 @@
             </p>
         </div>
 
-
         <div class="steps-container">
 
             <div class="how-step">
                 <div class="step-number">1</div>
-
                 <div class="step-icon">🚨</div>
 
                 <div>
@@ -155,13 +146,10 @@
                 </div>
             </div>
 
-
             <div class="step-line"></div>
-
 
             <div class="how-step">
                 <div class="step-number">2</div>
-
                 <div class="step-icon">🤖</div>
 
                 <div>
@@ -173,13 +161,10 @@
                 </div>
             </div>
 
-
             <div class="step-line"></div>
-
 
             <div class="how-step">
                 <div class="step-number">3</div>
-
                 <div class="step-icon">📍</div>
 
                 <div>
@@ -191,13 +176,10 @@
                 </div>
             </div>
 
-
             <div class="step-line"></div>
-
 
             <div class="how-step">
                 <div class="step-number">4</div>
-
                 <div class="step-icon">🤝</div>
 
                 <div>
@@ -210,7 +192,6 @@
             </div>
 
         </div>
-
 
         <div class="info-box">
             <strong>💡 What makes SAHAAYA different?</strong>
@@ -246,13 +227,12 @@
             </p>
         </div>
 
-
         <div id="emergencyOptions" class="options-list"></div>
 
     </section>
 
 
-    <!--OTHER DESCRIPTION -->
+    <!-- OTHER DESCRIPTION -->
 
     <section id="other-description" class="screen">
 
@@ -271,12 +251,10 @@
             </p>
         </div>
 
-
         <textarea
             id="customDescription"
             placeholder="Example: My father suddenly collapsed and is not responding..."
         ></textarea>
-
 
         <button class="primary-btn"
                 onclick="continueCustomEmergency()">
@@ -286,7 +264,7 @@
     </section>
 
 
-    <!--  CONFIRMATION -->
+    <!-- CONFIRMATION -->
 
     <section id="confirmation" class="screen">
 
@@ -305,7 +283,6 @@
             </p>
         </div>
 
-
         <div class="confirmation-card">
 
             <div class="detail-row">
@@ -315,14 +292,12 @@
                 </strong>
             </div>
 
-
             <div class="detail-row">
                 <span>Description</span>
                 <strong id="confirmDescription">
                     Someone is unconscious
                 </strong>
             </div>
-
 
             <div class="detail-row">
                 <span>Location</span>
@@ -331,14 +306,30 @@
                 </strong>
             </div>
 
-        </div>
+            <div class="detail-row">
+                <span>Response mode</span>
+                <strong id="confirmResponseMode">
+                    Individual responder
+                </strong>
+            </div>
 
+            <div class="detail-row">
+                <span>Escalation</span>
+                <strong id="confirmAuthority">
+                    Not required
+                </strong>
+            </div>
+
+        </div>
 
         <div class="info-box">
             📍 SAHAAYA will use your location to look
             for suitable nearby help.
         </div>
 
+        <div id="responsePlanNote" class="info-box">
+            SAHAAYA will choose the response path based on the emergency.
+        </div>
 
         <button class="primary-btn"
                 onclick="requestHelp()">
@@ -362,7 +353,6 @@
             Searching for nearby responders...
         </p>
 
-
         <div class="search-radius">
 
             <span>📍 Search radius</span>
@@ -373,7 +363,6 @@
 
         </div>
 
-
         <div class="status-tracker">
 
             <div class="status-item active">
@@ -381,19 +370,16 @@
                 <span>Emergency reported</span>
             </div>
 
-
             <div class="status-item active">
                 <div class="status-dot">✓</div>
                 <span>Searching nearby</span>
             </div>
-
 
             <div id="trackerResponder"
                  class="status-item">
                 <div class="status-dot">3</div>
                 <span>Finding responder</span>
             </div>
-
 
             <div id="trackerConnect"
                  class="status-item">
@@ -406,185 +392,145 @@
     </section>
 
 
-    <!--  HELPER FOUND-->
+    <!-- COMMUNITY / MULTI-RESPONDER ALERT -->
 
-    <section id="helper-found" class="screen">
+    <section id="community-alert" class="screen">
 
-        <div class="success-icon">
-            🤝
+        <div class="finding-icon">
+            📢
         </div>
 
-        <h2>Responder Found!</h2>
+        <h2>Community Alert Sent</h2>
 
-        <p>
-            A suitable nearby responder is available.
+        <p id="communityMessage">
+            Nearby eligible SAHAAYA users are being alerted.
         </p>
 
+        <div class="confirmation-card">
 
-        <div class="helper-card">
-
-            <div class="helper-avatar">
-                👩‍⚕️
+            <div class="detail-row">
+                <span>Emergency</span>
+                <strong id="communityEmergency">
+                    Fire
+                </strong>
             </div>
 
-            <div class="helper-info">
+            <div class="detail-row">
+                <span>Response</span>
+                <strong>
+                    Multiple responders
+                </strong>
+            </div>
 
-                <h3 id="helperName">
-                    First-Aid Responder
-                </h3>
-
-                <p id="helperSkill">
-                    🩺 Skill: First Aid
-                </p>
-
-                <p>
-                    📍 <strong id="helperDistance">
-                        280 m
-                    </strong> away
-                </p>
-
-                <span class="available-badge">
-                    🟢 Available
-                </span>
-
+            <div class="detail-row">
+                <span>Official escalation</span>
+                <strong id="communityAuthority">
+                    Required
+                </strong>
             </div>
 
         </div>
 
+        <div class="info-box">
+            📢 SAHAAYA can alert multiple suitable nearby
+            responders instead of waiting for one person.
+        </div>
 
         <button class="primary-btn"
-                onclick="simulateResponderAccept()">
-            Responder Accepts
+                onclick="goHome()">
+            Return Home
         </button>
 
     </section>
 
 
-    <!-- EMERGENCY STATUS -->
+    <!-- AUTHORITY ESCALATION -->
 
-    <section id="emergency-status"
-             class="screen">
+    <section id="authority-escalation" class="screen">
 
-        <div class="status-header-icon">
-            🚑
+        <div class="finding-icon">
+            🚨
         </div>
 
-        <h2>Help is on the way!</h2>
+        <h2>Official Help Recommended</h2>
 
-        <p>
-            Your emergency has been accepted by a responder.
+        <p id="authorityMessage">
+            This emergency may require official emergency services.
         </p>
 
+        <div class="confirmation-card">
 
-        <div class="live-status-card">
-
-            <div class="live-status-title">
-                <span>Emergency Status</span>
-
-                <span class="live-pill">
-                    ● LIVE
-                </span>
-            </div>
-
-
-            <div class="status-timeline">
-
-                <div class="timeline-item completed">
-
-                    <div class="timeline-icon">
-                        ✓
-                    </div>
-
-                    <div>
-                        <strong>Emergency Reported</strong>
-                        <small>
-                            SAHAAYA received your request
-                        </small>
-                    </div>
-
-                </div>
-
-
-                <div class="timeline-item completed">
-
-                    <div class="timeline-icon">
-                        ✓
-                    </div>
-
-                    <div>
-                        <strong>Responder Found</strong>
-                        <small>
-                            Suitable nearby help identified
-                        </small>
-                    </div>
-
-                </div>
-
-
-                <div class="timeline-item completed">
-
-                    <div class="timeline-icon">
-                        ✓
-                    </div>
-
-                    <div>
-                        <strong>Responder Accepted</strong>
-                        <small>
-                            A responder is responding
-                        </small>
-                    </div>
-
-                </div>
-
-
-                <div class="timeline-item current">
-
-                    <div class="timeline-icon">
-                        🚑
-                    </div>
-
-                    <div>
-                        <strong>Help is on the way</strong>
-                        <small>
-                            Please stay where you are
-                        </small>
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <div class="responder-mini-card">
-
-            <div class="mini-avatar">
-                👩‍⚕️
-            </div>
-
-            <div>
-                <strong id="acceptedResponderName">
-                    First-Aid Responder
+            <div class="detail-row">
+                <span>Emergency</span>
+                <strong id="authorityEmergency">
+                    Emergency
                 </strong>
+            </div>
 
-                <p>
-                    🩺 First Aid
-                </p>
-
-                <p>
-                    📍 280 m away
-                </p>
+            <div class="detail-row">
+                <span>Recommended authority</span>
+                <strong id="authorityName">
+                    Emergency Services
+                </strong>
             </div>
 
         </div>
 
-
-        <div class="important-message">
-            ⚠️ Please stay where you are and follow
-            the responder's instructions.
+        <div class="info-box">
+            SAHAAYA helps coordinate nearby assistance, but it
+            does not replace official emergency services.
         </div>
 
+        <button class="primary-btn"
+                onclick="goHome()">
+            Return Home
+        </button>
+
+    </section>
+
+
+    <!-- HELPER FOUND -->
+
+    <section id="helper-found" class="screen">
+
+        <div class="success-icon">
+            ✅
+        </div>
+
+        <h2>Help Found!</h2>
+
+        <p>
+            A suitable responder is nearby.
+        </p>
+
+        <div class="helper-card">
+
+            <div class="helper-icon">
+                👨‍⚕️
+            </div>
+
+            <h3 id="helperName">
+                Responder
+            </h3>
+
+            <p id="helperSkill">
+                First Aid
+            </p>
+
+            <div class="helper-distance">
+                📍 <span id="helperDistance">Nearby</span>
+            </div>
+
+            <div class="helper-status">
+                🟢 Available
+            </div>
+
+        </div>
+
+        <div class="info-box">
+            🤝 The responder can now choose to accept
+            the emergency.
+        </div>
 
         <button class="secondary-btn"
                 onclick="goHome()">
@@ -594,10 +540,62 @@
     </section>
 
 
-    <!--RESPONDER ENTRY -->
+    <!-- EMERGENCY STATUS -->
 
-    <section id="responder-entry"
-             class="screen">
+    <section id="emergency-status" class="screen">
+
+        <button class="back-btn"
+                onclick="goHome()">
+            ← Home
+        </button>
+
+        <div class="page-heading">
+            <div class="big-icon">📍</div>
+
+            <h2>Emergency Status</h2>
+
+            <p>
+                SAHAAYA is coordinating help.
+            </p>
+        </div>
+
+        <div class="confirmation-card">
+
+            <div class="detail-row">
+                <span>Status</span>
+                <strong id="emergencyStatusText">
+                    Searching
+                </strong>
+            </div>
+
+            <div class="detail-row">
+                <span>Search radius</span>
+                <strong id="statusRadius">
+                    150 m
+                </strong>
+            </div>
+
+            <div class="detail-row">
+                <span>Response mode</span>
+                <strong id="statusResponseMode">
+                    Individual responder
+                </strong>
+            </div>
+
+        </div>
+
+        <div class="info-box">
+            If no suitable responder is found nearby,
+            SAHAAYA can progressively expand the search
+            and recommend official escalation.
+        </div>
+
+    </section>
+
+
+    <!-- RESPONDER ENTRY -->
+
+    <section id="responder-entry" class="screen">
 
         <button class="back-btn"
                 onclick="goHome()">
@@ -610,20 +608,18 @@
             <h2>Responder</h2>
 
             <p>
-                Are you already registered with SAHAAYA?
+                Help people nearby during emergencies.
             </p>
         </div>
 
-
         <button class="primary-btn"
                 onclick="openResponderLogin()">
-            👨‍🚒 I'm Already Registered
+             Responder Login
         </button>
-
 
         <button class="secondary-btn"
                 onclick="openResponderRegistration()">
-            📝 I'm a New Responder
+             I'm a New Responder
         </button>
 
     </section>
@@ -650,7 +646,6 @@
             </p>
         </div>
 
-
         <div class="form-group">
 
             <label>Full Name</label>
@@ -662,7 +657,6 @@
             >
 
         </div>
-
 
         <div class="form-group">
 
@@ -676,12 +670,12 @@
 
         </div>
 
-
         <div class="form-group">
 
             <label>Profession</label>
 
-            <select id="responderProfession">
+            <select id="responderProfession"
+                    onchange="updateVerificationRequirement()">
 
                 <option value="">
                     Select profession
@@ -700,7 +694,6 @@
 
         </div>
 
-
         <div class="form-group">
 
             <label>Skills</label>
@@ -712,7 +705,6 @@
             >
 
         </div>
-
 
         <div class="form-group">
 
@@ -726,6 +718,38 @@
 
         </div>
 
+        <div id="verificationDocumentGroup"
+             class="form-group">
+
+            <label>Professional Verification Document</label>
+
+            <input
+                id="verificationDocument"
+                type="file"
+                accept=".pdf,.jpg,.jpeg,.png"
+            >
+
+            <small id="verificationDocumentHint">
+                Required for professional responder roles.
+                Upload is demo-only until the backend
+                verification endpoint is added.
+            </small>
+
+        </div>
+
+        <div id="volunteerRegistrationNote"
+             class="info-box hidden">
+
+            <strong>General Volunteer</strong>
+
+            <p>
+                Professional certification is not required.
+                Volunteers may assist with safe, non-professional
+                tasks such as community searches, guidance and
+                basic local assistance.
+            </p>
+
+        </div>
 
         <button class="primary-btn"
                 onclick="submitRegistration()">
@@ -750,25 +774,23 @@
             Your responder registration has been submitted.
         </p>
 
-
         <div class="info-box">
 
             <strong>Why verification?</strong>
 
             <p>
-                SAHAAYA needs to make sure responders
-                have the skills they claim before they
-                receive emergency requests.
+                Professional responders need credential checks
+                before receiving skill-specific emergency
+                requests. General volunteers can be approved
+                separately for non-professional assistance.
             </p>
 
         </div>
-
 
         <button class="primary-btn"
                 onclick="simulateVerification()">
             Demo: Complete Verification
         </button>
-
 
         <button class="secondary-btn"
                 onclick="goHome()">
@@ -778,7 +800,7 @@
     </section>
 
 
-    <!-- RESPONDER DASHBOARD-->
+    <!-- RESPONDER DASHBOARD -->
 
     <section id="responder-dashboard"
              class="screen">
@@ -809,8 +831,6 @@
         </div>
 
 
-        <!-- Availability -->
-
         <div class="availability-card">
 
             <div>
@@ -826,7 +846,6 @@
 
             </div>
 
-
             <label class="toggle">
 
                 <input
@@ -841,7 +860,6 @@
             </label>
 
         </div>
-
 
         <p id="availabilityMessage"
            class="availability-message">
@@ -864,21 +882,17 @@
 
             </div>
 
-
             <div class="emergency-type">
                 🩺 Medical Emergency
             </div>
-
 
             <div class="severity">
                 ⚠️ CRITICAL
             </div>
 
-
             <p class="emergency-description">
                 Someone is unconscious and not breathing.
             </p>
-
 
             <div class="emergency-details">
 
@@ -890,7 +904,6 @@
                     </span>
                 </div>
 
-
                 <div>
                     📍
                     <span>
@@ -898,7 +911,6 @@
                         <strong>280 m</strong>
                     </span>
                 </div>
-
 
                 <div>
                     🕐
@@ -909,7 +921,6 @@
                 </div>
 
             </div>
-
 
             <div class="dashboard-actions">
 
@@ -962,7 +973,6 @@
             You are now responding to this emergency.
         </p>
 
-
         <div class="responding-card">
 
             <div class="responding-header">
@@ -983,12 +993,10 @@
 
         </div>
 
-
         <button class="primary-btn"
                 onclick="navigateToEmergency()">
             🧭 Navigate to Emergency
         </button>
-
 
         <button class="secondary-btn"
                 onclick="openResponderDashboard()">
@@ -1013,7 +1021,6 @@
             This emergency will be offered to another
             suitable responder.
         </p>
-
 
         <button class="primary-btn"
                 onclick="openResponderDashboard()">
@@ -1048,7 +1055,6 @@
 
         </div>
 
-
         <div class="navigation-placeholder">
 
             <div>
@@ -1067,9 +1073,7 @@
 
     </section>
 
-
 </div>
-
 
 <script src="script.js"></script>
 
