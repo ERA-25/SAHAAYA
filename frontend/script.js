@@ -1,22 +1,9 @@
-/* =====================================================
-   SAHAAYA FRONTEND
-   Connected to Person 1 FastAPI + Person 2 MySQL
-===================================================== */
-
-/*
-   Change this IP if Person 1's backend is running
-   on a different laptop/IP address.
-
-   Example:
-   http://172.18.227.245:8000
-*/
-
 const API_BASE_URL = "http://172.18.227.245:8000";
 
 
-/* =====================================================
+/* 
    STATE
-===================================================== */
+ */
 
 let selectedCategory = "";
 let selectedEmergency = "";
@@ -30,20 +17,11 @@ let matchedHelpers = [];
 let responderEmergencies = [];
 let currentResponderEmergency = null;
 
-/* =====================================================
+/* 
    CURRENT BACKEND MATCHING RADII
-===================================================== */
+ */
 
-/*
-   These EXACTLY match matching.py:
-
-   0.15 km = 150 m
-   0.30 km = 300 m
-   0.50 km = 500 m
-   1.00 km = 1 km
-
-   The backend handles the progressive search.
-*/
+/
 
 const BACKEND_SEARCH_RADII = [
     150,
@@ -55,9 +33,9 @@ const BACKEND_SEARCH_RADII = [
 let currentRadius = 150;
 
 
-/* =====================================================
+/* 
    RESPONSE PLANS
-===================================================== */
+ */
 
 const RESPONSE_PLANS = {
 
@@ -105,9 +83,9 @@ const RESPONSE_PLANS = {
 };
 
 
-/* =====================================================
+/* 
    EMERGENCY OPTIONS
-===================================================== */
+ */
 
 const emergencyOptions = {
 
@@ -161,9 +139,9 @@ const emergencyOptions = {
 };
 
 
-/* =====================================================
+/* 
    SCREEN MANAGEMENT
-===================================================== */
+ */
 
 function showScreen(screenId) {
 
@@ -210,9 +188,9 @@ function openHowItWorks() {
 }
 
 
-/* =====================================================
+/* 
    CATEGORY SELECTION
-===================================================== */
+ */
 
 function selectCategory(category) {
 
@@ -308,9 +286,9 @@ function selectCategory(category) {
 }
 
 
-/* =====================================================
+/* 
    CUSTOM EMERGENCY
-===================================================== */
+ */
 
 function continueCustomEmergency() {
 
@@ -344,9 +322,9 @@ function continueCustomEmergency() {
 }
 
 
-/* =====================================================
+/* 
    RESPONSE PLAN
-===================================================== */
+ */
 
 function getResponsePlan(category) {
 
@@ -357,9 +335,9 @@ function getResponsePlan(category) {
 }
 
 
-/* =====================================================
+/* 
    CONFIRMATION
-===================================================== */
+ */
 
 function showConfirmation() {
 
@@ -437,9 +415,9 @@ function showConfirmation() {
 }
 
 
-/* =====================================================
+/* 
    BACKEND CATEGORY
-===================================================== */
+ */
 
 function getBackendCategory() {
 
@@ -462,9 +440,9 @@ function getBackendCategory() {
 }
 
 
-/* =====================================================
+/* 
    REQUIRED SKILL
-===================================================== */
+ */
 
 function getRequiredSkill() {
     const text = (selectedEmergency || customEmergencyDescription || "").toLowerCase();
@@ -509,9 +487,9 @@ function getRequiredSkill() {
     return "first_aid";
 }
 
-/* =====================================================
+/* 
    SEVERITY
-===================================================== */
+ */
 
 function getSeverity() {
 
@@ -548,9 +526,9 @@ function getSeverity() {
 }
 
 
-/* =====================================================
+/* 
    GET USER LOCATION
-===================================================== */
+ */
 
 function getUserLocation() {
 
@@ -608,9 +586,9 @@ function getUserLocation() {
 }
 
 
-/* =====================================================
+/* 
    CREATE EMERGENCY
-===================================================== */
+ */
 
 async function createEmergency(location) {
 
@@ -710,9 +688,9 @@ async function createEmergency(location) {
 }
 
 
-/* =====================================================
+/* 
    REQUEST HELP
-===================================================== */
+ */
 
 async function requestHelp() {
 
@@ -788,9 +766,9 @@ async function requestHelp() {
 }
 
 
-/* =====================================================
+/* 
    FIND HELPERS
-===================================================== */
+ */
 
 async function findHelpers() {
 
@@ -925,9 +903,9 @@ async function findHelpers() {
 }
 
 
-/* =====================================================
+/* 
    SHOW MATCHED HELPER
-===================================================== */
+ */
 
 function showHelperFound(helper) {
 
@@ -1022,9 +1000,9 @@ function showHelperFound(helper) {
 }
 
 
-/* =====================================================
+/* 
    NO HELPER
-===================================================== */
+ */
 
 function showNoHelperFound() {
 
@@ -1109,9 +1087,9 @@ function showNoHelperFound() {
 }
 
 
-/* =====================================================
+/* 
    DISTANCE FORMATTING
-===================================================== */
+ */
 
 function formatDistanceKm(
     distanceKm
@@ -1176,9 +1154,9 @@ function updateRadiusUI() {
 }
 
 
-/* =====================================================
+/* 
    ACCEPT EMERGENCY
-===================================================== */
+ */
 
 async function simulateResponderAccept(selectedEmergencyId) {
 
@@ -1296,9 +1274,9 @@ async function simulateResponderAccept(selectedEmergencyId) {
 }
 
 
-/* =====================================================
+/* 
    RESPONDER ACCEPT BUTTON
-===================================================== */
+ */
 
 async function acceptEmergency() {
 
@@ -1340,9 +1318,9 @@ async function acceptEmergency() {
 }
 
 
-/* =====================================================
+/* 
    RESPONDER DECLINE
-===================================================== */
+ */
 
 function declineEmergency() {
 
@@ -1359,9 +1337,9 @@ function declineEmergency() {
 }
 
 
-/* =====================================================
+/* 
    VOICE INPUT
-===================================================== */
+ */
 
 /*
    Temporary browser voice input.
@@ -1458,9 +1436,9 @@ function speakEmergency() {
 }
 
 
-/* =====================================================
+/* 
    VOICE OUTPUT
-===================================================== */
+ */
 
 function speakStatusUpdate(text) {
 
@@ -1492,9 +1470,9 @@ function speakStatusUpdate(text) {
 }
 
 
-/* =====================================================
+/* 
    REAL RESPONDER / HELPER
-===================================================== */
+ */
 
 let responder = {
     helper_id: null,
@@ -1508,9 +1486,9 @@ let responder = {
 };
 
 
-/* =====================================================
+/* 
    RESPONDER ENTRY
-===================================================== */
+ */
 
 function openResponderEntry() {
 
@@ -1520,9 +1498,9 @@ function openResponderEntry() {
 }
 
 
-/* =====================================================
+/* 
    RESPONDER LOGIN
-===================================================== */
+ */
 
 async function openResponderLogin() {
 
@@ -1649,9 +1627,9 @@ async function openResponderLogin() {
 }
 
 
-/* =====================================================
+/* 
    FETCH RESPONDER EMERGENCIES
-===================================================== */
+ */
 
 async function fetchResponderEmergencies() {
 
@@ -1806,9 +1784,9 @@ async function fetchResponderEmergencies() {
 }
 
 
-/* =====================================================
+/* 
    DISPLAY RESPONDER EMERGENCY
-===================================================== */
+ */
 
 function displayResponderEmergency(
     emergency
@@ -1958,9 +1936,9 @@ function displayResponderEmergency(
 }
 
 
-/* =====================================================
+/* 
    FORMAT CATEGORY
-===================================================== */
+ */
 
 function formatEmergencyCategory(
     category
@@ -1980,9 +1958,9 @@ function formatEmergencyCategory(
 }
 
 
-/* =====================================================
+/* 
    RESPONDER DASHBOARD
-===================================================== */
+ */
 
 async function openResponderDashboard() {
 
@@ -2109,9 +2087,9 @@ async function openResponderDashboard() {
 }
 
 
-/* =====================================================
+/* 
    AVAILABILITY
-===================================================== */
+ */
 
 async function toggleAvailability() {
 
@@ -2272,9 +2250,9 @@ async function toggleAvailability() {
 }
 
 
-/* =====================================================
+/* 
    AVAILABILITY UI
-===================================================== */
+ */
 
 function updateAvailabilityUI() {
 
@@ -2329,9 +2307,9 @@ function updateAvailabilityUI() {
 }
 
 
-/* =====================================================
+/* 
    RESPONDER LOGOUT
-===================================================== */
+ */
 
 function logoutResponder() {
 
@@ -2364,9 +2342,9 @@ function logoutResponder() {
 }
 
 
-/* =====================================================
+/* 
    NAVIGATION
-===================================================== */
+ */
 
 function navigateToEmergency() {
 
@@ -2376,9 +2354,9 @@ function navigateToEmergency() {
 }
 
 
-/* =====================================================
+/* 
    INITIAL LOAD
-===================================================== */
+ */
 
 document.addEventListener(
     "DOMContentLoaded",
