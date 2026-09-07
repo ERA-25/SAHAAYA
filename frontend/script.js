@@ -1,150 +1,192 @@
-/*  
+/* =====================================================
    SAHAAYA FRONTEND
-   REAL BACKEND INTEGRATION
-  */
+   Connected to Person 1 FastAPI + Person 2 MySQL
+===================================================== */
 
+/*
+   Change this IP if Person 1's backend is running
+   on a different laptop/IP address.
 
-/*  
-   BACKEND CONFIG
-  */
+   Example:
+   http://172.18.227.245:8000
+*/
 
 const API_BASE_URL = "http://172.18.227.245:8000";
 
 
-/*  
-   GLOBAL STATE
-  */
+/* =====================================================
+   STATE
+===================================================== */
 
 let selectedCategory = "";
 let selectedEmergency = "";
 let customEmergencyDescription = "";
 
-let currentRadius = 150;
-
 let emergencyId = null;
 let currentHelper = null;
+let matchedHelpers = [];
 
-let responder = {
-    name: "",
-    phone: "",
-    profession: "",
-    skills: "",
-    area: "",
-    verified: false,
-    available: false
+/* Responder-side state */
+let responderEmergencies = [];
+let currentResponderEmergency = null;
+
+/* =====================================================
+   CURRENT BACKEND MATCHING RADII
+===================================================== */
+
+/*
+   These EXACTLY match matching.py:
+
+   0.15 km = 150 m
+   0.30 km = 300 m
+   0.50 km = 500 m
+   1.00 km = 1 km
+
+   The backend handles the progressive search.
+*/
+
+const BACKEND_SEARCH_RADII = [
+    150,
+    300,
+    500,
+    1000
+];
+
+let currentRadius = 150;
+
+
+/* =====================================================
+   RESPONSE PLANS
+===================================================== */
+
+const RESPONSE_PLANS = {
+
+    Medical: {
+        mode: "Nearby responder",
+        authority: "EMS / Emergency Services if critical",
+        note:
+            "SAHAAYA searches for nearby verified responders with the required skill."
+    },
+
+    Fire: {
+        mode: "Nearby fire responder",
+        authority: "Fire & Rescue Services",
+        note:
+            "SAHAAYA searches for verified fire responders nearby. Official fire services may also be required."
+    },
+
+    Accident: {
+        mode: "Nearby responder",
+        authority: "EMS / Traffic or Police",
+        note:
+            "SAHAAYA searches for suitable nearby assistance while serious accidents may require official services."
+    },
+
+    Danger: {
+        mode: "Nearby security responder",
+        authority: "Police / Emergency Services when required",
+        note:
+            "SAHAAYA searches for verified security responders nearby."
+    },
+
+    Electrical: {
+        mode: "Nearby electrician",
+        authority: "Electricity utility / Emergency Services",
+        note:
+            "SAHAAYA searches for a verified electrician nearby."
+    },
+
+    Other: {
+        mode: "Nearby assistance",
+        authority: "Based on emergency",
+        note:
+            "SAHAAYA uses the emergency description to determine the current response category."
+    }
 };
 
 
-/*  
+/* =====================================================
    EMERGENCY OPTIONS
-  */
+===================================================== */
 
 const emergencyOptions = {
 
     Medical: [
-        "👤 Someone is unconscious",
-        "🤕 Someone is injured",
-        "😣 Severe pain",
-        "🫁 Breathing problem",
-        "❓ Other"
+        "Person unconscious",
+        "Severe bleeding",
+        "Breathing difficulty",
+        "Chest pain",
+        "Other medical emergency"
     ],
 
     Fire: [
-        "🏠 Building fire",
-        "🚗 Vehicle fire",
-        "⚡ Electrical fire",
-        "💨 Smoke detected",
-        "❓ Other"
+        "Building fire",
+        "Vehicle fire",
+        "Smoke / possible fire",
+        "Forest / outdoor fire",
+        "Other fire emergency"
     ],
 
     Accident: [
-        "🚗 Road accident",
-        "💥 Vehicle collision",
-        "🤕 Person injured",
-        "🆘 Person trapped",
-        "❓ Other"
+        "Road accident",
+        "Vehicle collision",
+        "Person injured",
+        "Multiple people injured",
+        "Other accident"
     ],
 
     Danger: [
-        "🆘 Person in danger",
-        "⚠️ Violence",
-        "👀 Suspicious situation",
-        "🔎 Missing person",
-        "❓ Other"
+        "Person in danger",
+        "Suspicious activity",
+        "Violence / threat",
+        "Missing or vulnerable person",
+        "Other danger"
     ],
 
     Electrical: [
-        "⚡ Electric shock",
-        "✨ Sparking",
-        "🔌 Fallen wire",
-        "💡 Power failure",
-        "❓ Other"
+        "Power line hazard",
+        "Electrical fire",
+        "Electric shock",
+        "Sparking / exposed wire",
+        "Other electrical emergency"
     ],
 
     Other: [
-        "🆘 Need immediate help",
-        "👶 Child assistance",
-        "👵 Elderly assistance",
-        "🔎 Lost person",
-        "❓ Other"
+        "Locked out / stuck",
+        "Need nearby assistance",
+        "Missing person",
+        "General emergency",
+        "Describe the emergency"
     ]
 };
 
 
-/*  
-   CATEGORY ICONS
-  */
-
-const categoryIcons = {
-
-    Medical: "🩺",
-    Fire: "🔥",
-    Accident: "🚗",
-    Danger: "🛡️",
-    Electrical: "⚡",
-    Other: "🆘"
-
-};
-
-
-/*  
-   SCREEN CONTROL
-  */
+/* =====================================================
+   SCREEN MANAGEMENT
+===================================================== */
 
 function showScreen(screenId) {
 
     const screens =
         document.querySelectorAll(".screen");
 
-
-    screens.forEach(screen => {
+    screens.forEach(function(screen) {
 
         screen.classList.remove("active");
 
     });
 
-
     const target =
         document.getElementById(screenId);
-
 
     if (target) {
 
         target.classList.add("active");
 
+        window.scrollTo(0, 0);
     }
-
-
-    window.scrollTo({
-        top: 0,
-        behavior: "smooth"
-    });
 }
 
-
-/*  
-   HOME
-  */
 
 function goHome() {
 
@@ -154,123 +196,131 @@ function goHome() {
 
     emergencyId = null;
     currentHelper = null;
+    matchedHelpers = [];
+
+    currentRadius = 150;
 
     showScreen("home");
 }
 
 
-/*  
-   HOW IT WORKS
-  */
-
 function openHowItWorks() {
 
     showScreen("how-it-works");
-
 }
 
 
-/*  
+/* =====================================================
    CATEGORY SELECTION
-  */
+===================================================== */
 
 function selectCategory(category) {
 
     selectedCategory = category;
 
+    const iconMap = {
 
-    document.getElementById("categoryIcon")
-        .textContent =
-        categoryIcons[category] || "🚨";
+        Medical: "🩺",
+        Fire: "🔥",
+        Accident: "🚗",
+        Danger: "🛡️",
+        Electrical: "⚡",
+        Other: "🆘"
+
+    };
+
+    const icon =
+        document.getElementById("categoryIcon");
+
+    if (icon) {
+
+        icon.textContent =
+            iconMap[category] || "🚨";
+    }
 
 
-    document.getElementById("categoryTitle")
-        .textContent =
-        `${category} Emergency`;
+    const title =
+        document.getElementById("categoryTitle");
+
+    if (title) {
+
+        title.textContent =
+            category === "Other"
+                ? "What kind of help do you need?"
+                : `${category} Emergency`;
+    }
 
 
-    const optionsContainer =
+    const container =
         document.getElementById(
             "emergencyOptions"
         );
 
-
-    optionsContainer.innerHTML = "";
-
-
-    const options =
-        emergencyOptions[category] || [];
+    container.innerHTML = "";
 
 
-    options.forEach(option => {
+    emergencyOptions[category].forEach(
+        function(option) {
 
-        const button =
-            document.createElement("button");
+            const button =
+                document.createElement("button");
 
+            button.className =
+                "option-btn";
 
-        button.className =
-            "option-btn";
-
-
-        button.textContent =
-            option;
-
-
-        button.onclick = function () {
-
-            selectEmergencyOption(option);
-
-        };
+            button.textContent =
+                option;
 
 
-        optionsContainer.appendChild(button);
+            button.onclick =
+                function() {
 
-    });
+                    if (
+                        category === "Other" &&
+                        option === "Describe the emergency"
+                    ) {
+
+                        showScreen(
+                            "other-description"
+                        );
+
+                        return;
+                    }
+
+
+                    selectedEmergency =
+                        option;
+
+                    customEmergencyDescription =
+                        option;
+
+
+                    showConfirmation();
+                };
+
+
+            container.appendChild(button);
+        }
+    );
 
 
     showScreen("category");
 }
 
 
-/*  
-   EMERGENCY OPTION
-  */
-
-function selectEmergencyOption(option) {
-
-    if (option.includes("Other")) {
-
-        showScreen("other-description");
-
-
-        document.getElementById(
-            "customDescription"
-        ).value = "";
-
-
-        return;
-    }
-
-
-    selectedEmergency = option;
-
-
-    showConfirmation();
-}
-
-
-/*  
+/* =====================================================
    CUSTOM EMERGENCY
-  */
+===================================================== */
 
 function continueCustomEmergency() {
 
-    const description =
+    const input =
         document.getElementById(
             "customDescription"
-        )
-        .value
-        .trim();
+        );
+
+    const description =
+        input.value.trim();
 
 
     if (!description) {
@@ -279,7 +329,6 @@ function continueCustomEmergency() {
             "Please describe what is happening."
         );
 
-
         return;
     }
 
@@ -287,219 +336,285 @@ function continueCustomEmergency() {
     customEmergencyDescription =
         description;
 
-
     selectedEmergency =
-        "Other: " + description;
+        "Other emergency";
 
 
     showConfirmation();
 }
 
 
-/*  
+/* =====================================================
+   RESPONSE PLAN
+===================================================== */
+
+function getResponsePlan(category) {
+
+    return (
+        RESPONSE_PLANS[category] ||
+        RESPONSE_PLANS.Other
+    );
+}
+
+
+/* =====================================================
    CONFIRMATION
-  */
+===================================================== */
 
 function showConfirmation() {
 
-    document.getElementById(
-        "confirmEmergency"
-    ).textContent =
-        selectedCategory;
+    const emergencyElement =
+        document.getElementById(
+            "confirmEmergency"
+        );
+
+    const descriptionElement =
+        document.getElementById(
+            "confirmDescription"
+        );
+
+    const modeElement =
+        document.getElementById(
+            "confirmResponseMode"
+        );
+
+    const authorityElement =
+        document.getElementById(
+            "confirmAuthority"
+        );
+
+    const noteElement =
+        document.getElementById(
+            "responsePlanNote"
+        );
 
 
-    document.getElementById(
-        "confirmDescription"
-    ).textContent =
-        selectedEmergency;
+    if (emergencyElement) {
+
+        emergencyElement.textContent =
+            selectedEmergency ||
+            selectedCategory;
+    }
+
+
+    if (descriptionElement) {
+
+        descriptionElement.textContent =
+            customEmergencyDescription ||
+            selectedEmergency ||
+            "Emergency reported";
+    }
+
+
+    const plan =
+        getResponsePlan(
+            selectedCategory
+        );
+
+
+    if (modeElement) {
+
+        modeElement.textContent =
+            plan.mode;
+    }
+
+
+    if (authorityElement) {
+
+        authorityElement.textContent =
+            plan.authority;
+    }
+
+
+    if (noteElement) {
+
+        noteElement.textContent =
+            plan.note;
+    }
 
 
     showScreen("confirmation");
 }
 
 
-/*  
+/* =====================================================
    BACKEND CATEGORY
-  */
+===================================================== */
 
 function getBackendCategory() {
 
-    return selectedCategory.toLowerCase();
+    const categoryMap = {
 
+        Medical: "medical",
+        Fire: "fire",
+        Accident: "accident",
+        Danger: "danger",
+        Electrical: "electrical",
+        Other: "other"
+
+    };
+
+
+    return (
+        categoryMap[selectedCategory] ||
+        "other"
+    );
 }
 
 
-/*  
+/* =====================================================
    REQUIRED SKILL
-  */
+===================================================== */
 
 function getRequiredSkill() {
+    const text = (selectedEmergency || customEmergencyDescription || "").toLowerCase();
 
-    const text =
-        selectedEmergency.toLowerCase();
-
-
+    // Missing or vulnerable person → security responder
     if (
-        selectedCategory === "Medical" ||
-        text.includes("unconscious") ||
-        text.includes("injured") ||
-        text.includes("pain") ||
-        text.includes("breathing")
+        text.includes("missing") ||
+        text.includes("vulnerable")
     ) {
-
-        return "first_aid";
-
+        return "security";
     }
 
-
-    if (selectedCategory === "Fire") {
-
-        return "fire_response";
-
+    // Electrical emergencies → electrician
+    if (
+        text.includes("electrical") ||
+        text.includes("wire") ||
+        text.includes("power") ||
+        text.includes("sparking")
+    ) {
+        return "electrician";
     }
 
-
-    if (selectedCategory === "Accident") {
-
-        return "accident_response";
-
+    // Fire emergencies → fire responder
+    if (
+        text.includes("fire") ||
+        text.includes("smoke")
+    ) {
+        return "fire_responder";
     }
 
-
-    if (selectedCategory === "Danger") {
-
-        return "safety_assistance";
-
+    // Danger/security emergencies → security responder
+    if (
+        text.includes("danger") ||
+        text.includes("security") ||
+        text.includes("violence") ||
+        text.includes("threat")
+    ) {
+        return "security";
     }
 
-
-    if (selectedCategory === "Electrical") {
-
-        return "electrical_assistance";
-
-    }
-
-
-    return "general_assistance";
+    // Medical/other emergencies → first aid
+    return "first_aid";
 }
 
-
-/*  
+/* =====================================================
    SEVERITY
-  */
+===================================================== */
 
 function getSeverity() {
 
     const text =
-        selectedEmergency.toLowerCase();
+        `${selectedCategory} ${selectedEmergency} ${customEmergencyDescription}`
+            .toLowerCase();
 
 
     if (
         text.includes("unconscious") ||
-        text.includes("breathing") ||
-        text.includes("trapped") ||
-        text.includes("electric shock") ||
-        text.includes("fire")
+        text.includes("not breathing") ||
+        text.includes("severe bleeding") ||
+        text.includes("critical")
     ) {
 
         return "critical";
-
     }
 
 
-    return "high";
+    if (
+        text.includes("fire") ||
+        text.includes("injured") ||
+        text.includes("accident") ||
+        text.includes("electric shock") ||
+        text.includes("chest pain") ||
+        text.includes("breathing")
+    ) {
+
+        return "high";
+    }
+
+
+    return "medium";
 }
 
 
-/*  
+/* =====================================================
    GET USER LOCATION
-  */
+===================================================== */
 
 function getUserLocation() {
 
-    return new Promise((resolve) => {
+    return new Promise(
+        function(resolve, reject) {
 
-        if (!navigator.geolocation) {
+            if (!navigator.geolocation) {
 
-            /*
-               Demo fallback coordinates
-            */
-
-            resolve({
-
-                latitude: 12.9716,
-                longitude: 77.5946
-
-            });
-
-
-            return;
-        }
-
-
-        navigator.geolocation.getCurrentPosition(
-
-            position => {
-
-                resolve({
-
-                    latitude:
-                        position.coords.latitude,
-
-                    longitude:
-                        position.coords.longitude
-
-                });
-
-            },
-
-
-            error => {
-
-                console.log(
-                    "Location unavailable:",
-                    error
+                reject(
+                    new Error(
+                        "Geolocation is not supported by this browser."
+                    )
                 );
 
-
-                /*
-                   Demo fallback
-                */
-
-                resolve({
-
-                    latitude: 12.9716,
-
-                    longitude: 77.5946
-
-                });
-
-            },
-
-
-            {
-                enableHighAccuracy: true,
-                timeout: 5000,
-                maximumAge: 60000
+                return;
             }
 
-        );
 
-    });
+            navigator.geolocation.getCurrentPosition(
+
+                function(position) {
+
+                    resolve({
+
+                        latitude:
+                            12.9716,
+
+                        longitude:
+                            77.5946
+
+                    });
+                },
+
+
+                function(error) {
+
+                    reject(error);
+                },
+
+
+                {
+
+                    enableHighAccuracy:
+                        true,
+
+                    timeout:
+                        10000,
+
+                    maximumAge:
+                        0
+                }
+            );
+        }
+    );
 }
 
 
-/*  
-   POST /emergency
-  */
+/* =====================================================
+   CREATE EMERGENCY
+===================================================== */
 
-async function createEmergency() {
+async function createEmergency(location) {
 
-    const location =
-        await getUserLocation();
-
-
-    const emergencyData = {
+    const payload = {
 
         category:
             getBackendCategory(),
@@ -511,599 +626,173 @@ async function createEmergency() {
             getRequiredSkill(),
 
         description:
-            selectedEmergency,
+            customEmergencyDescription ||
+            selectedEmergency ||
+            "Emergency reported",
 
         latitude:
             location.latitude,
 
         longitude:
             location.longitude
-
     };
 
 
     console.log(
-        "POST /emergency",
-        emergencyData
+        "Sending emergency:",
+        payload
     );
 
 
-    try {
+    const response =
+        await fetch(
+            `${API_BASE_URL}/emergency`,
+            {
 
-        const response =
-            await fetch(
-                `${API_BASE_URL}/emergency`,
-                {
+                method: "POST",
 
-                    method: "POST",
+                headers: {
 
-                    headers: {
+                    "Content-Type":
+                        "application/json"
+                },
 
-                        "Content-Type":
-                            "application/json"
-
-                    },
-
-                    body:
-                        JSON.stringify(
-                            emergencyData
-                        )
-
-                }
-            );
-
-
-        if (!response.ok) {
-
-            throw new Error(
-                `HTTP ${response.status}`
-            );
-
-        }
-
-
-        const data =
-            await response.json();
-
-
-        console.log(
-            "Emergency response:",
-            data
+                body:
+                    JSON.stringify(payload)
+            }
         );
 
 
-        /*
-           Person 1's backend should return:
+    if (!response.ok) {
 
-           {
-               "message": "...",
-               "emergency_id": 1,
-               "emergency": {...}
-           }
+        const errorText =
+            await response.text();
 
-           We support that structure.
-        */
-
-
-        if (data.emergency_id) {
-
-            emergencyId =
-                data.emergency_id;
-
-        }
-
-
-        /*
-           Some backends may put the ID inside
-           the emergency object.
-        */
-
-        else if (
-            data.emergency &&
-            data.emergency.id
-        ) {
-
-            emergencyId =
-                data.emergency.id;
-
-        }
-
-
-        return data;
-
-
-    } catch (error) {
-
-        console.error(
-            "POST /emergency failed:",
-            error
+        throw new Error(
+            `Emergency creation failed (${response.status}): ${errorText}`
         );
-
-
-        alert(
-            "Could not connect to the SAHAAYA backend.\n\nMake sure Person 1's FastAPI server is running and accessible."
-        );
-
-
-        return null;
-
-    }
-
-}
-
-
-/*  
-   REQUEST HELP
-  */
-
-async function requestHelp() {
-
-    currentRadius = 150;
-
-
-    document.getElementById(
-        "radiusValue"
-    ).textContent =
-        "Detecting location...";
-
-
-    document.getElementById(
-        "findingMessage"
-    ).textContent =
-        "Sending emergency to SAHAAYA...";
-
-
-    resetFindingTracker();
-
-
-    showScreen("finding-help");
-
-
-    /*
-       STEP 1
-       Create emergency
-    */
-
-    const emergencyResponse =
-        await createEmergency();
-
-
-    if (!emergencyResponse) {
-
-        return;
-
     }
 
 
-    /*
-       Emergency successfully created.
-    */
-
-    document.getElementById(
-        "findingMessage"
-    ).textContent =
-        "Emergency reported. Finding nearby help...";
+    const data =
+        await response.json();
 
 
-    document.getElementById(
-        "radiusValue"
-    ).textContent =
-        "Searching";
+    console.log(
+        "Emergency created:",
+        data
+    );
 
 
     /*
-       STEP 2
-       Get matching helpers
+       This exactly matches Person 1's backend:
+
+       {
+           "message": "Emergency created successfully",
+           "emergency_id": 1,
+           "status": "pending"
+       }
     */
+
+    emergencyId =
+        data.emergency_id;
+
 
     if (!emergencyId) {
 
-        console.error(
-            "No emergency ID received."
+        throw new Error(
+            "Backend did not return emergency_id."
         );
-
-
-        alert(
-            "Emergency was created, but the backend did not return an emergency ID. Ask Person 1 to include emergency_id in the response."
-        );
-
-
-        return;
-
     }
 
 
-    await findHelpers(emergencyId);
+    return data;
 }
 
 
-/*  
-   GET /emergency/{id}/helpers
-  */
+/* =====================================================
+   REQUEST HELP
+===================================================== */
 
-async function findHelpers(id) {
+async function requestHelp() {
 
-    console.log(
-        `GET /emergency/${id}/helpers`
+    showScreen(
+        "finding-help"
     );
+
+
+    currentRadius = 150;
+
+    updateRadiusUI();
 
 
     try {
 
-        const response =
-            await fetch(
-                `${API_BASE_URL}/emergency/${id}/helpers`
-            );
+        /*
+           STEP 1:
+           Get location.
+        */
+
+        const location =
+            await getUserLocation();
 
 
-        if (!response.ok) {
+        /*
+           STEP 2:
+           Save emergency in MySQL.
+        */
 
-            throw new Error(
-                `HTTP ${response.status}`
-            );
-
-        }
-
-
-        const data =
-            await response.json();
-
-
-        console.log(
-            "Helpers response:",
-            data
+        await createEmergency(
+            location
         );
 
 
         /*
-           Expected:
-
-           {
-               emergency_id: 1,
-               status: "searching",
-               helpers: [...]
-           }
+           STEP 3:
+           Ask backend matching system
+           for suitable helpers.
         */
 
+        await findHelpers();
 
-        if (
-            data.helpers &&
-            data.helpers.length > 0
-        ) {
+    }
 
-            /*
-               Use the first helper returned.
-               Backend already sorts/matches helpers.
-            */
-
-            currentHelper =
-                data.helpers[0];
-
-
-            activateFindingResponder();
-
-
-            document.getElementById(
-                "findingMessage"
-            ).textContent =
-                "Suitable responder found!";
-
-
-            document.getElementById(
-                "radiusValue"
-            ).textContent =
-                `${currentHelper.distance} m`;
-
-
-            setTimeout(
-                showRealHelperFound,
-                700
-            );
-
-
-        } else {
-
-            /*
-               No helper currently returned.
-
-               We display the search status rather
-               than inventing a fake responder.
-            */
-
-            currentRadius += 150;
-
-
-            document.getElementById(
-                "radiusValue"
-            ).textContent =
-                `${currentRadius} m`;
-
-
-            document.getElementById(
-                "findingMessage"
-            ).textContent =
-                "No suitable responder found yet. Searching a wider area...";
-
-
-            /*
-               Try once more after a short delay.
-
-               Later Person 1 can handle radius
-               escalation completely on the backend.
-            */
-
-            setTimeout(
-                () => retryHelperSearch(id),
-                2000
-            );
-
-        }
-
-
-    } catch (error) {
+    catch (error) {
 
         console.error(
-            "GET helpers failed:",
+            "Emergency error:",
             error
         );
 
 
-        alert(
-            "Could not retrieve nearby responders from the backend."
-        );
-
-    }
-
-}
-
-
-/*  
-   RETRY HELPER SEARCH
-  */
-
-async function retryHelperSearch(id) {
-
-    console.log(
-        "Retrying helper search..."
-    );
-
-
-    try {
-
-        const response =
-            await fetch(
-                `${API_BASE_URL}/emergency/${id}/helpers`
+        const message =
+            document.getElementById(
+                "findingMessage"
             );
 
 
-        if (!response.ok) {
+        if (message) {
 
-            throw new Error(
-                `HTTP ${response.status}`
-            );
-
+            message.textContent =
+                "Could not create the emergency.";
         }
 
 
-        const data =
-            await response.json();
-
-
-        console.log(
-            "Retry helpers response:",
-            data
-        );
-
-
-        if (
-            data.helpers &&
-            data.helpers.length > 0
-        ) {
-
-            currentHelper =
-                data.helpers[0];
-
-
-            activateFindingResponder();
-
-
-            document.getElementById(
-                "findingMessage"
-            ).textContent =
-                "Suitable responder found!";
-
-
-            document.getElementById(
-                "radiusValue"
-            ).textContent =
-                `${currentHelper.distance} m`;
-
-
-            setTimeout(
-                showRealHelperFound,
-                700
-            );
-
-
-        } else {
-
-            document.getElementById(
-                "findingMessage"
-            ).textContent =
-                "No responder is currently available.";
-
-
-            document.getElementById(
-                "radiusValue"
-            ).textContent =
-                "Search complete";
-
-
-            /*
-               Don't keep retrying forever.
-            */
-
-            setTimeout(() => {
-
-                alert(
-                    "No suitable responder is currently available. The backend can later trigger radius escalation or official emergency escalation."
-                );
-
-                goHome();
-
-            }, 1500);
-
-        }
-
-
-    } catch (error) {
-
-        console.error(
-            "Retry failed:",
-            error
-        );
-
-        
-
-
         alert(
-            "Could not retrieve responders."
+            "Could not create the emergency. Make sure Person 1's FastAPI server is running and the API address is correct."
         );
 
+
+        goHome();
     }
-
 }
 
 
-/*  
-   FINDING TRACKER
-  */
+/* =====================================================
+   FIND HELPERS
+===================================================== */
 
-function resetFindingTracker() {
-
-    const responderTracker =
-        document.getElementById(
-            "trackerResponder"
-        );
-
-
-    const connectTracker =
-        document.getElementById(
-            "trackerConnect"
-        );
-
-
-    responderTracker.classList.remove(
-        "active"
-    );
-
-
-    connectTracker.classList.remove(
-        "active"
-    );
-
-
-    responderTracker.querySelector(
-        ".status-dot"
-    ).textContent =
-        "3";
-
-
-    connectTracker.querySelector(
-        ".status-dot"
-    ).textContent =
-        "4";
-}
-
-
-function activateFindingResponder() {
-
-    const responderTracker =
-        document.getElementById(
-            "trackerResponder"
-        );
-
-
-    responderTracker.classList.add(
-        "active"
-    );
-
-
-    responderTracker.querySelector(
-        ".status-dot"
-    ).textContent =
-        "✓";
-}
-
-
-/*  
-   SHOW REAL HELPER
-  */
-
-function showRealHelperFound() {
-
-    if (!currentHelper) {
-
-        return;
-
-    }
-
-
-    const helperName =
-        currentHelper.name ||
-        "Nearby Responder";
-
-
-    const helperSkill =
-        currentHelper.skill ||
-        "Emergency Assistance";
-
-
-    const helperDistance =
-        currentHelper.distance ??
-        "Nearby";
-
-
-    document.getElementById(
-        "helperName"
-    ).textContent =
-        helperName;
-
-
-    document.getElementById(
-        "helperSkill"
-    ).textContent =
-        "🩺 Skill: " + helperSkill;
-
-
-    document.getElementById(
-        "helperDistance"
-    ).textContent =
-        helperDistance;
-
-
-    showScreen(
-        "helper-found"
-    );
-}
-
-
-/*  
-   ACCEPT MATCH
-   POST /match/{id}/accept
-  */
-
-async function simulateResponderAccept() {
-
-    /*
-       IMPORTANT:
-
-       This function name is kept because your
-       existing HTML already calls it.
-
-       It now performs the REAL backend accept call.
-    */
-
+async function findHelpers() {
 
     if (!emergencyId) {
 
@@ -1111,71 +800,56 @@ async function simulateResponderAccept() {
             "Emergency ID is missing."
         );
 
-
         return;
-
     }
 
 
-    if (!currentHelper) {
-
-        alert(
-            "No responder has been selected."
+    const message =
+        document.getElementById(
+            "findingMessage"
         );
 
 
-        return;
+    if (message) {
 
+        message.textContent =
+            "Searching for suitable nearby responders...";
     }
-
-
-    const helperId =
-        currentHelper.id;
-
-
-    if (!helperId) {
-
-        alert(
-            "Responder ID is missing from the backend response."
-        );
-
-
-        return;
-
-    }
-
-
-    console.log(
-        `POST /match/${emergencyId}/accept`
-    );
 
 
     try {
 
+        /*
+           Person 1's endpoint calls:
+
+           progressively_match_emergency(
+               emergency_id
+           )
+
+           which checks:
+
+           150m
+           300m
+           500m
+           1km
+
+           and returns up to 3 helpers.
+        */
+
         const response =
             await fetch(
-                `${API_BASE_URL}/match/${emergencyId}/accept`,
-                {
-
-                    method: "POST",
-
-                    headers: {
-
-                        "Content-Type":
-                            "application/json"
-
-                    }
-
-                }
+                `${API_BASE_URL}/emergency/${emergencyId}/helpers`
             );
 
 
         if (!response.ok) {
 
-            throw new Error(
-                `HTTP ${response.status}`
-            );
+            const errorText =
+                await response.text();
 
+            throw new Error(
+                `Helper search failed (${response.status}): ${errorText}`
+            );
         }
 
 
@@ -1184,353 +858,1248 @@ async function simulateResponderAccept() {
 
 
         console.log(
-            "Accept response:",
+            "Matching result:",
+            data
+        );
+
+
+        matchedHelpers =
+            data.helpers || [];
+
+
+        /* ---------------------------------------------
+           MATCH FOUND
+        --------------------------------------------- */
+
+        if (
+            matchedHelpers.length > 0
+        ) {
+
+            /*
+               Backend orders helpers by distance.
+
+               So helpers[0] is the closest
+               suitable verified available helper.
+            */
+
+            currentHelper =
+                matchedHelpers[0];
+
+
+            showHelperFound(
+                currentHelper
+            );
+
+
+            return;
+        }
+
+
+        /* ---------------------------------------------
+           NO MATCH
+        --------------------------------------------- */
+
+        showNoHelperFound();
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Matching error:",
+            error
+        );
+
+
+        if (message) {
+
+            message.textContent =
+                "Unable to search for responders.";
+        }
+
+
+        alert(
+            "The emergency was created, but responder matching could not be completed."
+        );
+    }
+}
+
+
+/* =====================================================
+   SHOW MATCHED HELPER
+===================================================== */
+
+function showHelperFound(helper) {
+
+    /*
+       Exact fields returned by matching.py:
+
+       helper_id
+       name
+       phone
+       skill
+       distance_km
+    */
+
+
+    const helperId =
+        helper.helper_id;
+
+
+    const helperName =
+        helper.name ||
+        "Responder";
+
+
+    const helperSkill =
+        helper.skill ||
+        "Suitable responder";
+
+
+    const distanceKm =
+        helper.distance_km;
+
+
+    currentHelper =
+        helper;
+
+
+    console.log(
+        "Selected helper:",
+        currentHelper
+    );
+
+
+    const nameElement =
+        document.getElementById(
+            "helperName"
+        );
+
+
+    if (nameElement) {
+
+        nameElement.textContent =
+            helperName;
+    }
+
+
+    const skillElement =
+        document.getElementById(
+            "helperSkill"
+        );
+
+
+    if (skillElement) {
+
+        skillElement.textContent =
+            helperSkill;
+    }
+
+
+    const distanceElement =
+        document.getElementById(
+            "helperDistance"
+        );
+
+
+    if (distanceElement) {
+
+        distanceElement.textContent =
+            formatDistanceKm(
+                distanceKm
+            );
+    }
+
+
+    showScreen(
+        "helper-found"
+    );
+
+
+    speakStatusUpdate(
+        `${helperName} is the closest suitable responder found by SAHAAYA.`
+    );
+}
+
+
+/* =====================================================
+   NO HELPER
+===================================================== */
+
+function showNoHelperFound() {
+
+    const message =
+        document.getElementById(
+            "findingMessage"
+        );
+
+
+    if (message) {
+
+        message.textContent =
+            "No suitable verified responder was found within 1 kilometre.";
+    }
+
+
+    /*
+       IMPORTANT:
+
+       We do NOT pretend that SAHAAYA contacted
+       police, fire services, EMS, etc.
+
+       Your current backend does not contain
+       an official-authority API.
+
+       We only show the recommendation.
+    */
+
+    setTimeout(
+        function() {
+
+            showScreen(
+                "authority-escalation"
+            );
+
+
+            const emergencyElement =
+                document.getElementById(
+                    "authorityEmergency"
+                );
+
+
+            if (emergencyElement) {
+
+                emergencyElement.textContent =
+                    selectedEmergency ||
+                    selectedCategory;
+            }
+
+
+            const authorityElement =
+                document.getElementById(
+                    "authorityName"
+                );
+
+
+            if (authorityElement) {
+
+                authorityElement.textContent =
+                    getResponsePlan(
+                        selectedCategory
+                    ).authority;
+            }
+
+
+            const messageElement =
+                document.getElementById(
+                    "authorityMessage"
+                );
+
+
+            if (messageElement) {
+
+                messageElement.textContent =
+                    "No suitable verified responder was found within SAHAAYA's current 1 km matching range. Please contact official emergency services if required.";
+            }
+
+
+        },
+        1000
+    );
+}
+
+
+/* =====================================================
+   DISTANCE FORMATTING
+===================================================== */
+
+function formatDistanceKm(
+    distanceKm
+) {
+
+    if (
+        distanceKm === null ||
+        distanceKm === undefined ||
+        isNaN(distanceKm)
+    ) {
+
+        return "Nearby";
+    }
+
+
+    const km =
+        Number(distanceKm);
+
+
+    if (km < 1) {
+
+        return `${Math.round(
+            km * 1000
+        )} m`;
+    }
+
+
+    return `${km.toFixed(2)} km`;
+}
+
+
+function updateRadiusUI() {
+
+    const radiusElement =
+        document.getElementById(
+            "radiusValue"
+        );
+
+
+    if (radiusElement) {
+
+        radiusElement.textContent =
+            formatDistanceKm(
+                currentRadius / 1000
+            );
+    }
+
+
+    const statusRadius =
+        document.getElementById(
+            "statusRadius"
+        );
+
+
+    if (statusRadius) {
+
+        statusRadius.textContent =
+            formatDistanceKm(
+                currentRadius / 1000
+            );
+    }
+}
+
+
+/* =====================================================
+   ACCEPT EMERGENCY
+===================================================== */
+
+async function simulateResponderAccept(selectedEmergencyId) {
+
+    /*
+       Use the emergency ID from the responder's
+       emergency card.
+
+       Fallbacks are included for safety.
+    */
+
+    const idToAccept =
+        selectedEmergencyId ||
+        (
+            currentResponderEmergency &&
+            currentResponderEmergency.emergency_id
+        ) ||
+        emergencyId;
+
+
+    if (!idToAccept) {
+
+        alert(
+            "Emergency ID is missing."
+        );
+
+        console.error(
+            "No emergency_id available for acceptance."
+        );
+
+        return false;
+    }
+
+
+    if (!responder || !responder.helper_id) {
+
+        alert(
+            "Responder ID is missing."
+        );
+
+        return false;
+    }
+
+
+    const helperId =
+        responder.helper_id;
+
+
+    console.log(
+        "Accepting emergency:",
+        idToAccept,
+        "with helper:",
+        helperId
+    );
+
+
+    try {
+
+        const response =
+            await fetch(
+                `${API_BASE_URL}/match/${encodeURIComponent(idToAccept)}/accept?helper_id=${encodeURIComponent(helperId)}`,
+                {
+                    method: "POST"
+                }
+            );
+
+
+        if (!response.ok) {
+
+            const errorText =
+                await response.text();
+
+            throw new Error(
+                `Accept failed (${response.status}): ${errorText}`
+            );
+        }
+
+
+        const data =
+            await response.json();
+
+
+        console.log(
+            "Acceptance response:",
             data
         );
 
 
         /*
-           Expected:
-
-           {
-               emergency_id: 1,
-               helper_id: 1,
-               status: "accepted",
-               message: "..."
-           }
+           Keep the accepted emergency ID.
         */
 
-
-        if (
-            data.status &&
-            data.status.toLowerCase() !==
-                "accepted"
-        ) {
-
-            alert(
-                data.message ||
-                "The responder did not accept the emergency."
-            );
+        emergencyId =
+            Number(idToAccept);
 
 
-            return;
+        return true;
 
-        }
+    }
 
-
-        /*
-           Update responder status in the
-           emergency timeline.
-        */
-
-        const connectTracker =
-            document.getElementById(
-                "trackerConnect"
-            );
-
-
-        connectTracker.classList.add(
-            "active"
-        );
-
-
-        connectTracker.querySelector(
-            ".status-dot"
-        ).textContent =
-            "✓";
-
-
-        document.getElementById(
-            "acceptedResponderName"
-        ).textContent =
-            currentHelper.name ||
-            "Responder";
-
-
-        showScreen(
-            "emergency-status"
-        );
-
-
-    } catch (error) {
+    catch (error) {
 
         console.error(
-            "POST accept failed:",
+            "Accept error:",
             error
         );
 
 
         alert(
-            "Could not accept the emergency through the backend."
+            "Could not accept the emergency. Please try again."
         );
 
-    }
 
+        return false;
+    }
 }
 
 
-/*  
-   SPEAK
-  */
+/* =====================================================
+   RESPONDER ACCEPT BUTTON
+===================================================== */
+
+async function acceptEmergency() {
+
+    /*
+       THIS is the important part.
+
+       Get the ID from the emergency returned by:
+
+       GET /helper/{helper_id}/emergencies
+    */
+
+    const selectedEmergencyId =
+        currentResponderEmergency &&
+        currentResponderEmergency.emergency_id;
+
+
+    console.log(
+        "Accept button clicked.",
+        "Emergency ID:",
+        selectedEmergencyId
+    );
+
+
+    const accepted =
+        await simulateResponderAccept(
+            selectedEmergencyId
+        );
+
+
+    if (!accepted) {
+
+        return;
+    }
+
+
+    showScreen(
+        "responder-accepted"
+    );
+}
+
+
+/* =====================================================
+   RESPONDER DECLINE
+===================================================== */
+
+function declineEmergency() {
+
+    /*
+       There is currently NO decline endpoint
+       in Person 1's backend.
+
+       So we only change the frontend screen.
+    */
+
+    showScreen(
+        "responder-declined"
+    );
+}
+
+
+/* =====================================================
+   VOICE INPUT
+===================================================== */
+
+/*
+   Temporary browser voice input.
+
+   ElevenLabs should later be connected through
+   a backend endpoint.
+
+   NEVER put an ElevenLabs API key in frontend code.
+*/
 
 function speakEmergency() {
 
-    alert(
-        "Voice input can be connected to AI/voice services later."
-    );
+    const SpeechRecognition =
+        window.SpeechRecognition ||
+        window.webkitSpeechRecognition;
 
+
+    if (!SpeechRecognition) {
+
+        alert(
+            "Voice recognition is not supported in this browser."
+        );
+
+        return;
+    }
+
+
+    const recognition =
+        new SpeechRecognition();
+
+
+    recognition.lang =
+        "en-IN";
+
+
+    recognition.interimResults =
+        false;
+
+
+    recognition.maxAlternatives =
+        1;
+
+
+    recognition.onstart =
+        function() {
+
+            alert(
+                "Speak your emergency now."
+            );
+        };
+
+
+    recognition.onresult =
+        function(event) {
+
+            const transcript =
+                event.results[0][0]
+                    .transcript
+                    .trim();
+
+
+            selectedCategory =
+                "Other";
+
+
+            selectedEmergency =
+                "Voice emergency";
+
+
+            customEmergencyDescription =
+                transcript;
+
+
+            showConfirmation();
+        };
+
+
+    recognition.onerror =
+        function(event) {
+
+            console.error(
+                "Voice recognition error:",
+                event.error
+            );
+
+
+            alert(
+                "Voice input could not be captured."
+            );
+        };
+
+
+    recognition.start();
 }
 
 
-/*  
+/* =====================================================
+   VOICE OUTPUT
+===================================================== */
+
+function speakStatusUpdate(text) {
+
+    /*
+       Temporary browser speech.
+
+       ElevenLabs can replace this later through
+       a secure backend endpoint.
+    */
+
+    if (
+        "speechSynthesis" in window
+    ) {
+
+        const utterance =
+            new SpeechSynthesisUtterance(
+                text
+            );
+
+
+        utterance.lang =
+            "en-IN";
+
+
+        window.speechSynthesis.speak(
+            utterance
+        );
+    }
+}
+
+
+/* =====================================================
+   REAL RESPONDER / HELPER
+===================================================== */
+
+let responder = {
+    helper_id: null,
+    name: "",
+    phone: "",
+    skill: "",
+    verified: false,
+    available: false,
+    latitude: null,
+    longitude: null
+};
+
+
+/* =====================================================
    RESPONDER ENTRY
-  */
+===================================================== */
 
 function openResponderEntry() {
 
     showScreen(
         "responder-entry"
     );
-
 }
 
 
-/*  
+/* =====================================================
    RESPONDER LOGIN
-  */
+===================================================== */
 
-function openResponderLogin() {
+async function openResponderLogin() {
 
-    /*
-       DEMO LOGIN
-
-       Actual responder authentication can be
-       connected to the backend later.
-    */
+    const input =
+        prompt("Enter your Helper ID:");
 
 
-    if (!responder.verified) {
+    if (!input) {
 
-        responder = {
-
-            name:
-                "Demo Responder",
-
-            phone:
-                "0000000000",
-
-            profession:
-                "First-Aid Volunteer",
-
-            skills:
-                "First Aid",
-
-            area:
-                "Demo Area",
-
-            verified:
-                true,
-
-            available:
-                true
-
-        };
-
+        return;
     }
 
 
-    openResponderDashboard();
-}
-
-
-/*  
-   RESPONDER REGISTRATION
-  */
-
-function openResponderRegistration() {
-
-    showScreen(
-        "responder-registration"
-    );
-
-}
-
-
-/*  
-   SUBMIT REGISTRATION
-  */
-
-function submitRegistration() {
-
-    const name =
-        document.getElementById(
-            "responderName"
-        )
-        .value
-        .trim();
-
-
-    const phone =
-        document.getElementById(
-            "responderPhone"
-        )
-        .value
-        .trim();
-
-
-    const profession =
-        document.getElementById(
-            "responderProfession"
-        )
-        .value;
-
-
-    const skills =
-        document.getElementById(
-            "responderSkills"
-        )
-        .value
-        .trim();
-
-
-    const area =
-        document.getElementById(
-            "responderArea"
-        )
-        .value
-        .trim();
+    const helperId =
+        Number(input.trim());
 
 
     if (
-        !name ||
-        !phone ||
-        !profession ||
-        !skills ||
-        !area
+        !Number.isInteger(helperId) ||
+        helperId <= 0
     ) {
 
         alert(
-            "Please fill in all fields."
+            "Please enter a valid Helper ID."
         );
-
 
         return;
     }
 
 
-    responder = {
+    try {
 
-        name,
-        phone,
-        profession,
-        skills,
-        area,
+        /*
+           Get the real responder from Person 1's backend.
+        */
 
-        verified:
-            false,
-
-        available:
-            false
-
-    };
+        const response =
+            await fetch(
+                `${API_BASE_URL}/helper/${helperId}`
+            );
 
 
-    showScreen(
-        "verification-pending"
+        if (!response.ok) {
+
+            const errorText =
+                await response.text();
+
+            throw new Error(
+                `Helper lookup failed (${response.status}): ${errorText}`
+            );
+        }
+
+
+        const data =
+            await response.json();
+
+
+        console.log(
+            "Real helper loaded:",
+            data
+        );
+
+
+        responder = {
+
+            helper_id:
+                data.helper_id,
+
+            name:
+                data.name || "Responder",
+
+            phone:
+                data.phone || "",
+
+            skill:
+                data.skill || "Responder",
+
+            verified:
+                Boolean(data.verified),
+
+            available:
+                Boolean(data.available),
+
+            latitude:
+                data.latitude ?? null,
+
+            longitude:
+                data.longitude ?? null
+        };
+
+
+        if (!responder.verified) {
+
+            alert(
+                "This helper is not verified yet."
+            );
+
+            return;
+        }
+
+
+        /*
+           IMPORTANT:
+           Open dashboard and fetch this helper's
+           emergency list.
+        */
+
+        await openResponderDashboard();
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Responder login error:",
+            error
+        );
+
+
+        alert(
+            "Could not find this Helper ID. Please check the ID and make sure Person 1's backend is running."
+        );
+    }
+}
+
+
+/* =====================================================
+   FETCH RESPONDER EMERGENCIES
+===================================================== */
+
+async function fetchResponderEmergencies() {
+
+    if (!responder.helper_id) {
+
+        console.error(
+            "No helper_id available."
+        );
+
+        return [];
+    }
+
+
+    try {
+
+        /*
+           Person 1's endpoint:
+
+           GET /helper/{helper_id}/emergencies
+        */
+
+        const response =
+            await fetch(
+                `${API_BASE_URL}/helper/${responder.helper_id}/emergencies`
+            );
+
+
+        if (!response.ok) {
+
+            const errorText =
+                await response.text();
+
+            throw new Error(
+                `Emergency lookup failed (${response.status}): ${errorText}`
+            );
+        }
+
+
+        const data =
+            await response.json();
+
+
+        console.log(
+            "Responder emergencies:",
+            data
+        );
+
+
+        /*
+           Support either:
+
+           [
+               {...},
+               {...}
+           ]
+
+           OR:
+
+           {
+               "emergencies": [...]
+           }
+        */
+
+        if (Array.isArray(data)) {
+
+            responderEmergencies =
+                data;
+
+        }
+
+        else if (
+            data &&
+            Array.isArray(data.emergencies)
+        ) {
+
+            responderEmergencies =
+                data.emergencies;
+
+        }
+
+        else {
+
+            responderEmergencies =
+                [];
+        }
+
+
+        /*
+           Select the first emergency returned
+           by the backend.
+        */
+
+        if (
+            responderEmergencies.length > 0
+        ) {
+
+            currentResponderEmergency =
+                responderEmergencies[0];
+
+
+            /*
+               ⭐ THIS FIXES YOUR ERROR ⭐
+
+               Store the backend emergency_id.
+            */
+
+            emergencyId =
+                currentResponderEmergency.emergency_id;
+
+
+            console.log(
+                "Current responder emergency ID:",
+                emergencyId
+            );
+
+        }
+
+        else {
+
+            currentResponderEmergency =
+                null;
+
+            emergencyId =
+                null;
+        }
+
+
+        return responderEmergencies;
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Could not fetch responder emergencies:",
+            error
+        );
+
+
+        responderEmergencies =
+            [];
+
+        currentResponderEmergency =
+            null;
+
+        emergencyId =
+            null;
+
+
+        return [];
+    }
+}
+
+
+/* =====================================================
+   DISPLAY RESPONDER EMERGENCY
+===================================================== */
+
+function displayResponderEmergency(
+    emergency
+) {
+
+    if (!emergency) {
+
+        return;
+    }
+
+
+    /*
+       Store the COMPLETE object.
+
+       This includes emergency_id.
+    */
+
+    currentResponderEmergency =
+        emergency;
+
+
+    emergencyId =
+        emergency.emergency_id;
+
+
+    console.log(
+        "Displaying emergency:",
+        emergency
+    );
+
+
+    const emergencyCard =
+        document.getElementById(
+            "incomingEmergency"
+        );
+
+
+    if (!emergencyCard) {
+
+        return;
+    }
+
+
+    /* ---------------------------------------------
+       CATEGORY
+    --------------------------------------------- */
+
+    const emergencyType =
+        emergencyCard.querySelector(
+            ".emergency-type"
+        );
+
+
+    if (emergencyType) {
+
+        const category =
+            emergency.category ||
+            "Emergency";
+
+
+        emergencyType.textContent =
+            `🚨 ${formatEmergencyCategory(category)}`;
+    }
+
+
+    /* ---------------------------------------------
+       SEVERITY
+    --------------------------------------------- */
+
+    const severity =
+        emergencyCard.querySelector(
+            ".severity"
+        );
+
+
+    if (severity) {
+
+        severity.textContent =
+            `⚠️ ${(emergency.severity || "medium").toUpperCase()}`;
+    }
+
+
+    /* ---------------------------------------------
+       DESCRIPTION
+    --------------------------------------------- */
+
+    const description =
+        emergencyCard.querySelector(
+            ".emergency-description"
+        );
+
+
+    if (description) {
+
+        description.textContent =
+            emergency.description ||
+            "Emergency reported nearby.";
+    }
+
+
+    /* ---------------------------------------------
+       DETAILS
+    --------------------------------------------- */
+
+    const detailBlocks =
+        emergencyCard.querySelectorAll(
+            ".emergency-details > div"
+        );
+
+
+    if (detailBlocks.length >= 3) {
+
+        const skillStrong =
+            detailBlocks[0].querySelector(
+                "strong"
+            );
+
+
+        const distanceStrong =
+            detailBlocks[1].querySelector(
+                "strong"
+            );
+
+
+        if (skillStrong) {
+
+            skillStrong.textContent =
+                responder.skill ||
+                "Suitable responder";
+        }
+
+
+        if (distanceStrong) {
+
+            distanceStrong.textContent =
+                formatDistanceKm(
+                    emergency.distance_km
+                );
+        }
+    }
+
+
+    console.log(
+        "Emergency card connected to ID:",
+        emergencyId
     );
 }
 
 
-/*  
-   DEMO VERIFICATION
-  */
+/* =====================================================
+   FORMAT CATEGORY
+===================================================== */
 
-function simulateVerification() {
+function formatEmergencyCategory(
+    category
+) {
 
-    responder.verified =
-        true;
+    if (!category) {
+
+        return "Emergency";
+    }
 
 
-    responder.available =
-        true;
-
-
-    alert(
-        "Demo verification complete. You are now a verified responder."
+    return (
+        category.charAt(0).toUpperCase() +
+        category.slice(1).toLowerCase() +
+        " Emergency"
     );
-
-
-    openResponderDashboard();
 }
 
 
-/*  
+/* =====================================================
    RESPONDER DASHBOARD
-  */
+===================================================== */
 
-function openResponderDashboard() {
+async function openResponderDashboard() {
+
+    if (!responder.helper_id) {
+
+        alert(
+            "No responder is currently logged in."
+        );
+
+        return;
+    }
+
 
     if (!responder.verified) {
 
         alert(
-            "Your responder profile has not been verified yet."
+            "This responder is not verified."
         );
-
-
-        showScreen(
-            "verification-pending"
-        );
-
 
         return;
     }
 
 
-    document.getElementById(
-        "responderWelcome"
-    ).textContent =
-        `Welcome, ${responder.name}`;
+    const welcome =
+        document.getElementById(
+            "responderWelcome"
+        );
 
 
-    document.getElementById(
-        "availabilityToggle"
-    ).checked =
-        responder.available;
+    if (welcome) {
+
+        welcome.textContent =
+            `Welcome, ${responder.name}`;
+    }
+
+
+    const toggle =
+        document.getElementById(
+            "availabilityToggle"
+        );
+
+
+    if (toggle) {
+
+        toggle.checked =
+            responder.available;
+    }
 
 
     updateAvailabilityUI();
 
 
-    if (responder.available) {
+    /*
+       ⭐ IMPORTANT ⭐
 
+       Fetch emergencies specifically for
+       the logged-in responder.
+    */
+
+    await fetchResponderEmergencies();
+
+
+    const incoming =
         document.getElementById(
             "incomingEmergency"
-        ).classList.remove(
-            "hidden"
         );
 
 
+    const none =
         document.getElementById(
             "noEmergency"
-        ).classList.add(
-            "hidden"
-        );
-
-    } else {
-
-        document.getElementById(
-            "incomingEmergency"
-        ).classList.add(
-            "hidden"
         );
 
 
-        document.getElementById(
-            "noEmergency"
-        ).classList.remove(
-            "hidden"
+    if (
+        responder.available &&
+        currentResponderEmergency
+    ) {
+
+        displayResponderEmergency(
+            currentResponderEmergency
         );
 
+
+        if (incoming) {
+
+            incoming.classList.remove(
+                "hidden"
+            );
+        }
+
+
+        if (none) {
+
+            none.classList.add(
+                "hidden"
+            );
+        }
+
+    }
+
+    else {
+
+        if (incoming) {
+
+            incoming.classList.add(
+                "hidden"
+            );
+        }
+
+
+        if (none) {
+
+            none.classList.remove(
+                "hidden"
+            );
+        }
     }
 
 
@@ -1540,75 +2109,172 @@ function openResponderDashboard() {
 }
 
 
-/*  
+/* =====================================================
    AVAILABILITY
-  */
+===================================================== */
 
-function toggleAvailability() {
+async function toggleAvailability() {
 
-    if (!responder.verified) {
-
-        alert(
-            "Only verified responders can change availability."
+    const toggle =
+        document.getElementById(
+            "availabilityToggle"
         );
 
 
-        document.getElementById(
-            "availabilityToggle"
-        ).checked =
-            false;
-
+    if (
+        !toggle ||
+        !responder.helper_id
+    ) {
 
         return;
     }
 
 
-    responder.available =
-        document.getElementById(
-            "availabilityToggle"
-        ).checked;
+    const newAvailability =
+        toggle.checked;
 
 
-    updateAvailabilityUI();
+    toggle.disabled = true;
 
 
-    if (responder.available) {
+    try {
 
-        document.getElementById(
-            "incomingEmergency"
-        ).classList.remove(
-            "hidden"
+        const response =
+            await fetch(
+                `${API_BASE_URL}/helper/${responder.helper_id}/availability`,
+                {
+
+                    method: "PATCH",
+
+                    headers: {
+
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body:
+                        JSON.stringify({
+
+                            available:
+                                newAvailability
+                        })
+                }
+            );
+
+
+        if (!response.ok) {
+
+            const errorText =
+                await response.text();
+
+            throw new Error(
+                `Availability update failed (${response.status}): ${errorText}`
+            );
+        }
+
+
+        const data =
+            await response.json();
+
+
+        console.log(
+            "Availability updated:",
+            data
         );
 
 
-        document.getElementById(
-            "noEmergency"
-        ).classList.add(
-            "hidden"
+        responder.available =
+            Boolean(data.available);
+
+
+        toggle.checked =
+            responder.available;
+
+
+        updateAvailabilityUI();
+
+
+        const incoming =
+            document.getElementById(
+                "incomingEmergency"
+            );
+
+
+        const none =
+            document.getElementById(
+                "noEmergency"
+            );
+
+
+        if (
+            responder.available &&
+            currentResponderEmergency
+        ) {
+
+            if (incoming) {
+
+                incoming.classList.remove(
+                    "hidden"
+                );
+            }
+
+
+            if (none) {
+
+                none.classList.add(
+                    "hidden"
+                );
+            }
+
+        }
+
+        else {
+
+            if (incoming) {
+
+                incoming.classList.add(
+                    "hidden"
+                );
+            }
+
+
+            if (none) {
+
+                none.classList.remove(
+                    "hidden"
+                );
+            }
+        }
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Availability error:",
+            error
         );
 
-    } else {
 
-        document.getElementById(
-            "incomingEmergency"
-        ).classList.add(
-            "hidden"
+        toggle.checked =
+            responder.available;
+
+
+        alert(
+            "Could not update your availability. Please try again."
         );
+    }
 
+    finally {
 
-        document.getElementById(
-            "noEmergency"
-        ).classList.remove(
-            "hidden"
-        );
-
+        toggle.disabled = false;
     }
 }
 
 
-/*  
+/* =====================================================
    AVAILABILITY UI
-  */
+===================================================== */
 
 function updateAvailabilityUI() {
 
@@ -1624,7 +2290,15 @@ function updateAvailabilityUI() {
         );
 
 
-    if (responder.available) {
+    if (!badge || !message) {
+
+        return;
+    }
+
+
+    if (
+        responder.available
+    ) {
 
         badge.className =
             "availability-badge available";
@@ -1637,7 +2311,9 @@ function updateAvailabilityUI() {
         message.textContent =
             "You may receive nearby emergencies.";
 
-    } else {
+    }
+
+    else {
 
         badge.className =
             "availability-badge unavailable";
@@ -1649,70 +2325,77 @@ function updateAvailabilityUI() {
 
         message.textContent =
             "You will not receive new emergency requests.";
-
     }
 }
 
 
-/*  
-   ACCEPT EMERGENCY
-  */
+/* =====================================================
+   RESPONDER LOGOUT
+===================================================== */
 
-function acceptEmergency() {
+function logoutResponder() {
 
-    if (!responder.available) {
+    responder = {
 
-        alert(
-            "You are currently unavailable."
-        );
+        helper_id: null,
+        name: "",
+        phone: "",
+        skill: "",
+        verified: false,
+        available: false,
+        latitude: null,
+        longitude: null
+    };
 
 
-        return;
+    responderEmergencies =
+        [];
 
-    }
+    currentResponderEmergency =
+        null;
+
+    emergencyId =
+        null;
 
 
     showScreen(
-        "responder-accepted"
+        "home"
     );
 }
 
 
-/*  
-   DECLINE EMERGENCY
-  */
-
-function declineEmergency() {
-
-    showScreen(
-        "responder-declined"
-    );
-
-}
-
-
-/*  
+/* =====================================================
    NAVIGATION
-  */
+===================================================== */
 
 function navigateToEmergency() {
 
     showScreen(
         "navigation"
     );
-
 }
 
 
-/*  
+/* =====================================================
    INITIAL LOAD
-  */
+===================================================== */
 
 document.addEventListener(
     "DOMContentLoaded",
-    function () {
+    function() {
 
         goHome();
 
+
+        const professionSelect =
+            document.getElementById(
+                "responderProfession"
+            );
+
+
+        if (professionSelect) {
+
+            updateVerificationRequirement();
+        }
     }
 );
