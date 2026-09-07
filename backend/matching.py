@@ -5,9 +5,30 @@ def match_emergency_to_helpers(emergency_id, radius_km=1):
     db = get_db_connection()
     cursor = db.cursor(dictionary=True)
 
+    # Get emergency type and required skill
+    cursor.execute(
+        """
+        SELECT emergency_type, required_skill
+        FROM emergencies
+        WHERE id = %s
+        """,
+        (emergency_id,)
+    )
+
+    emergency = cursor.fetchone()
+
+    if not emergency:
+        cursor.close()
+        db.close()
+        return []
+
+    emergency_type = (emergency["emergency_type"] or "").lower()
+    required_skill = (emergency["required_skill"] or "").lower()
+
     query = """
     SELECT
         e.id AS emergency_id,
+        e.required_skill,
         h.id AS helper_id,
         h.name,
         h.phone,
@@ -45,30 +66,36 @@ def match_emergency_to_helpers(emergency_id, radius_km=1):
     AND e.longitude IS NOT NULL
 
     AND (
-        (LOWER(e.emergency_type) = 'medical'
-            AND h.skill IN ('Doctor', 'First Aid'))
+        (
+            LOWER(e.required_skill) = 'first_aid'
+            AND LOWER(h.skill) IN ('first aid', 'doctor')
+        )
 
         OR
 
-        (LOWER(e.emergency_type) = 'fire'
-            AND h.skill = 'Firefighter')
+        (
+            LOWER(e.required_skill) IN ('fire_responder', 'fire_response')
+            AND LOWER(h.skill) IN ('firefighter', 'fire responder')
+        )
 
         OR
 
-        (LOWER(e.emergency_type) = 'electrical'
-            AND h.skill = 'Electrician')
+        (
+            LOWER(e.required_skill) = 'electrician'
+            AND LOWER(h.skill) = 'electrician'
+        )
 
         OR
 
-        (LOWER(e.emergency_type) = 'security'
-            AND h.skill = 'Security')
+        (
+            LOWER(e.required_skill) = 'security'
+            AND LOWER(h.skill) = 'security'
+        )
     )
 
     HAVING distance_km <= %s
 
     ORDER BY distance_km ASC
-
-    LIMIT 3
     """
 
     cursor.execute(query, (emergency_id, radius_km))
@@ -78,4 +105,24 @@ def match_emergency_to_helpers(emergency_id, radius_km=1):
     cursor.close()
     db.close()
 
+    # Fire and Missing/Vulnerable:
+    # return ALL suitable responders.
+    #
+    # Normal emergencies:
+    # return only the closest 3.
+    if emergency_type not in ("fire", "danger"):
+        helpers = helpers[:3]
+
     return helpers
+
+
+def progressively_match_emergency(emergency_id):
+    radii = [0.15, 0.30, 0.50, 1.0]
+
+    for radius in radii:
+        helpers = match_emergency_to_helpers(emergency_id, radius)
+
+        if helpers:
+            return helpers
+
+    return []
